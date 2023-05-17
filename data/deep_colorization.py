@@ -85,7 +85,7 @@ model.fit_generator(
 	nb_epoch=15)
 
 # Test model
-print model.evaluate(Xtest, Ytest, batch_size=batch_size)
+print(model.evaluate(Xtest, Ytest, batch_size=batch_size))
 output = model.predict(Xtest)
 
 # Output colorizations

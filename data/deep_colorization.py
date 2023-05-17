@@ -24,9 +24,9 @@ X = []
 for filename in os.listdir('imatges'):
 	X.append(img_to_array(load_img('imatges/'+filename)))
 X = np.array(X)
+
 print(X)
 
-print("HOLA HOLA HOLA HOLA")
 
 # Set up train and test data
 split = int(0.9*len(X))

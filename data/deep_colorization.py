@@ -26,7 +26,8 @@ for filename in os.listdir('imatges'):
 X = np.array(X)
 print(X)
 
-print("HOLA HOLA HOLA")
+print("HOLA HOLA HOLA HOLA")
+
 # Set up train and test data
 split = int(0.9*len(X))
 Xtrain = X[:split]

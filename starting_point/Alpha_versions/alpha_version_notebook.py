@@ -21,7 +21,7 @@ import tensorflow as tf
 
 
 # Get images
-image = img_to_array(load_img('woman.jpg'))
+image = img_to_array(load_img('swim.jpg'))
 image = np.array(image, dtype=float)
 
 

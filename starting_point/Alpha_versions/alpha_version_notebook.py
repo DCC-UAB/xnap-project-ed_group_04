@@ -21,7 +21,11 @@ import tensorflow as tf
 
 
 # Get images
+<<<<<<< HEAD
 image = img_to_array(load_img('man.jpg'))
+=======
+image = img_to_array(load_img('swim.jpg'))
+>>>>>>> 76a45f56ce8bb67ee051163bf5abbe73b05b0b49
 image = np.array(image, dtype=float)
 
 

@@ -17,7 +17,6 @@ import os
 import random
 import tensorflow as tf
 
-
 # In[ ]:
 
 

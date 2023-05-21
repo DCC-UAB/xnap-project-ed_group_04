@@ -39,17 +39,28 @@ import numpy as np
 import os
 import random
 import tensorflow as tf
+
 # Get images
 X = []
-for filename in os.listdir('Train/'):
-    X.append(img_to_array(load_img('Train/'+filename)))
+for filename in os.listdir('starting_point/Full-version/Train/'):
+    X.append(img_to_array(load_img('starting_point/Full-version/Train/'+filename)))
+    print('IMG')
 X = np.array(X, dtype=float)
 Xtrain = 1.0/255*X
 
 
 #Load weights
+tf.compat.v1.disable_eager_execution()
+""""
 inception = InceptionResNetV2(weights='imagenet', include_top=True)
-inception.graph = tf.get_default_graph()
+
+graph = tf.compat.v1.get_default_graph()
+inception.graph=graph
+"""
+graph = tf.compat.v1.get_default_graph()
+
+with graph.as_default():
+    inception = InceptionResNetV2(weights='imagenet', include_top=True)
 
 embed_input = Input(shape=(1000,))
 
@@ -81,7 +92,10 @@ decoder_output = Conv2D(2, (3, 3), activation='tanh', padding='same')(decoder_ou
 decoder_output = UpSampling2D((2, 2))(decoder_output)
 
 model = Model(inputs=[encoder_input, embed_input], outputs=decoder_output)
+with tf.compat.v1.Session() as sess:
+    sess.run(tf.compat.v1.global_variables_initializer())
 
+""""
 def create_inception_embedding(grayscaled_rgb):
     grayscaled_rgb_resized = []
     for i in grayscaled_rgb:
@@ -89,8 +103,26 @@ def create_inception_embedding(grayscaled_rgb):
         grayscaled_rgb_resized.append(i)
     grayscaled_rgb_resized = np.array(grayscaled_rgb_resized)
     grayscaled_rgb_resized = preprocess_input(grayscaled_rgb_resized)
-    with inception.graph.as_default():
+    
+    with graph.as_default():
         embed = inception.predict(grayscaled_rgb_resized)
+    
+    #with graph.as_default():
+     #   embed = inception.predict(grayscaled_rgb_resized)
+    
+    return embed
+"""
+def create_inception_embedding(grayscaled_rgb):
+    grayscaled_rgb_resized = []
+    for i in grayscaled_rgb:
+        i = resize(i, (299, 299, 3), mode='constant')
+        grayscaled_rgb_resized.append(i)
+    grayscaled_rgb_resized = np.array(grayscaled_rgb_resized)
+    grayscaled_rgb_resized = preprocess_input(grayscaled_rgb_resized)
+    
+    with graph.as_default():
+        embed = inception.predict(grayscaled_rgb_resized)
+    
     return embed
 
 # Image transformer
@@ -122,6 +154,9 @@ color_me = []
 for filename in os.listdir('Test/'):
     color_me.append(img_to_array(load_img('Test/'+filename)))
 color_me = np.array(color_me, dtype=float)
+print('--------------------------')
+print(color_me)
+print('---------------------------')
 gray_me = gray2rgb(rgb2gray(1.0/255*color_me))
 color_me_embed = create_inception_embedding(gray_me)
 color_me = rgb2lab(1.0/255*color_me)[:,:,:,0]

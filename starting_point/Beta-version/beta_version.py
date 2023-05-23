@@ -20,6 +20,8 @@ import tensorflow as tf
 # In[ ]:
 
 
+
+
 # Get images
 X = []
 for filename in os.listdir('starting_point/Full-version/Train/'):

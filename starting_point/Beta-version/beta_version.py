@@ -8,6 +8,7 @@ from keras.layers import Conv2D, UpSampling2D, InputLayer, Conv2DTranspose
 from keras.layers import Activation, Dense, Dropout, Flatten
 from tensorflow.keras.layers import BatchNormalization
 from keras.models import Sequential
+from keras.callbacks import TensorBoard
 from keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.utils import array_to_img, img_to_array, load_img
 from skimage.color import rgb2lab, lab2rgb, rgb2gray, xyz2lab
@@ -16,16 +17,15 @@ import numpy as np
 import os
 import random
 import tensorflow as tf
-from keras.callbacks import TensorBoard
-
-
 # In[ ]:
+
+
 
 
 # Get images
 X = []
-for filename in os.listdir('../Full-version/Train/'):
-    X.append(img_to_array(load_img('../Full-version/Train/'+filename)))
+for filename in os.listdir('starting_point/Full-version/Train/'):
+    X.append(img_to_array(load_img('starting_point/Full-version/Train/'+filename)))
 X = np.array(X, dtype=float)
 
 # Set up train and test data

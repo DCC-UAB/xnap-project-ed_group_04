@@ -7,6 +7,7 @@ from keras.layers import Conv2D, UpSampling2D, InputLayer, Conv2DTranspose
 from keras.layers import Activation, Dense, Dropout, Flatten
 from tensorflow.keras.layers import BatchNormalization
 from keras.models import Sequential
+from keras.callbacks import TensorBoard
 from keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.utils import array_to_img, img_to_array, load_img
 from skimage.color import rgb2lab, lab2rgb, rgb2gray, xyz2lab

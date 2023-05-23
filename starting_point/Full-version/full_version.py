@@ -25,11 +25,11 @@ from skimage.io import imsave
 import numpy as np
 import os
 import random
-import tensorflow as tf
 
 from keras.layers import Conv2D, UpSampling2D, InputLayer, Conv2DTranspose
 from keras.layers import Activation, Dense, Dropout, Flatten
-from tensorflow.keras.layers import BatchNormalization
+#from tf.keras.layers import BatchNormalization
+#from tensorflow.keras.layers import BatchNormalization
 from keras.models import Sequential
 from keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.utils import array_to_img, img_to_array, load_img
@@ -37,12 +37,14 @@ from skimage.color import rgb2lab, lab2rgb, rgb2gray, xyz2lab
 from skimage.io import imsave
 import numpy as np
 import os
+import tensorflow as tf
+
 import random
 import tensorflow as tf
 
 # Get images
 X = []
-for filename in os.listdir('starting_point/Full-version/Train/'):
+for filename in os.listdir('starting_point/Full-version/Train/')[:1]:
     X.append(img_to_array(load_img('starting_point/Full-version/Train/'+filename)))
     print('IMG')
 X = np.array(X, dtype=float)
@@ -71,7 +73,7 @@ encoder_output = Conv2D(128, (3,3), activation='relu', padding='same')(encoder_o
 encoder_output = Conv2D(128, (3,3), activation='relu', padding='same', strides=2)(encoder_output)
 encoder_output = Conv2D(256, (3,3), activation='relu', padding='same')(encoder_output)
 encoder_output = Conv2D(256, (3,3), activation='relu', padding='same', strides=2)(encoder_output)
-encoder_output = Conv2D(512, (3,3), activation='relu', padding='same')(encoder_output)
+#encoder_output = Conv2D(512, (3,3), activation='relu', padding='same')(encoder_output)
 encoder_output = Conv2D(512, (3,3), activation='relu', padding='same')(encoder_output)
 encoder_output = Conv2D(256, (3,3), activation='relu', padding='same')(encoder_output)
 
@@ -133,7 +135,7 @@ datagen = ImageDataGenerator(
         horizontal_flip=True)
 
 #Generate training data
-batch_size = 10
+batch_size = 1
 
 def image_a_b_gen(batch_size):
     for batch in datagen.flow(Xtrain, batch_size=batch_size):

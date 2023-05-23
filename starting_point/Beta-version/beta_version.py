@@ -107,7 +107,8 @@ print(model.evaluate(Xtest, Ytest, batch_size=batch_size))
 
 color_me = []
 for filename in os.listdir('starting_point/Full-version/Test/'):
-    color_me.append(img_to_array(load_img('starting_pointgit p/Full-version/Test/'+filename)))
+    
+    color_me.append(img_to_array(load_img('starting_point/Full-version/Test/'+filename)))
 color_me = np.array(color_me, dtype=float)
 color_me = rgb2lab(1.0/255*color_me)[:,:,:,0]
 color_me = color_me.reshape(color_me.shape+(1,))

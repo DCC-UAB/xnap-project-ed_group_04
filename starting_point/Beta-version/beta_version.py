@@ -16,8 +16,6 @@ import numpy as np
 import os
 import random
 import tensorflow as tf
-from keras.callbacks import TensorBoard
-
 
 # In[ ]:
 

@@ -128,3 +128,6 @@ for i in range(len(output)):
     cur[:,:,0] = color_me[i][:,:,0]
     cur[:,:,1:] = output[i]
     imsave("result/img_"+str(i)+".png", lab2rgb(cur))
+
+
+print("hola")

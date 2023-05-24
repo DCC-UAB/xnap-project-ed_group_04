@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
-# In[]
+import matplotlib.pyplot as plt
 from keras.layers import Conv2D, UpSampling2D, InputLayer, Conv2DTranspose
 from keras.layers import Activation, Dense, Dropout, Flatten
 from tensorflow.keras.layers import BatchNormalization
@@ -14,7 +14,6 @@ import numpy as np
 import os
 import random
 import tensorflow as tf
-#In[]
 
 
 class ColorizationDataLoader(tf.keras.utils.Sequence):
@@ -90,16 +89,30 @@ def image_a_b_gen(batch_size):
         Y_batch = lab_batch[:,:,:,1:] / 128
         yield (X_batch.reshape(X_batch.shape+(1,)), Y_batch)
 
-# Train model
-tensorboard = TensorBoard(log_dir="starting_point/Beta-version/output/first_run")
-model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=30, steps_per_epoch=20)
 
+# Collect training loss history
+history = model.fit_generator(
+    image_a_b_gen(batch_size),
+    callbacks=[TensorBoard(log_dir="starting_point/Beta-version/output/first_run")],
+    epochs=300,
+    steps_per_epoch=20
+)
 
 # Save model
 model_json = model.to_json()
 with open("model.json", "w") as json_file:
     json_file.write(model_json)
 model.save_weights("model.h5")
+
+# Plot training loss
+loss = history.history['loss']
+epochs = range(1, len(loss) + 1)
+plt.plot(epochs, loss, 'b', label='Training Loss')
+plt.title('Training Loss')
+plt.xlabel('Epochs')
+plt.ylabel('Loss')
+plt.legend()
+plt.show()
 
 
 # Test images
@@ -111,8 +124,8 @@ print(model.evaluate(Xtest, Ytest, batch_size=batch_size))
 
 
 color_me = []
-for filename in os.listdir('starting_point/Full-version/Test/'):
-    color_me.append(img_to_array(load_img('starting_point/Full-version/Test/'+filename)))
+for filename in os.listdir('starting_point/Full-version/Train/'):
+    color_me.append(img_to_array(load_img('starting_point/Full-version/Train/'+filename)))
 color_me = np.array(color_me, dtype=float)
 color_me = rgb2lab(1.0/255*color_me)[:,:,:,0]
 color_me = color_me.reshape(color_me.shape+(1,))

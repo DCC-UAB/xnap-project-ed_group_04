@@ -124,8 +124,8 @@ print(model.evaluate(Xtest, Ytest, batch_size=batch_size))
 
 
 color_me = []
-for filename in os.listdir('starting_point/Full-version/Train/'):
-    color_me.append(img_to_array(load_img('starting_point/Full-version/Train/'+filename)))
+for filename in os.listdir('starting_point/Full-version/Test/'):
+    color_me.append(img_to_array(load_img('starting_point/Full-version/Test/'+filename)))
 color_me = np.array(color_me, dtype=float)
 color_me = rgb2lab(1.0/255*color_me)[:,:,:,0]
 color_me = color_me.reshape(color_me.shape+(1,))
@@ -139,4 +139,7 @@ for i in range(len(output)):
     cur = np.zeros((256, 256, 3))
     cur[:,:,0] = color_me[i][:,:,0]
     cur[:,:,1:] = output[i]
-    imsave("/home/alumne/Desktop/repositori/xnap-project-ed_group_04-1/starting_point/Beta-version/result/img_"+str(i)+".png", lab2rgb(cur))
+    imsave("result/img_"+str(i)+".png", lab2rgb(cur))
+
+
+print("hola")

@@ -67,9 +67,9 @@ model.add(UpSampling2D((2, 2)))
 model.add(Conv2D(64, (3, 3), activation='relu', padding='same'))
 model.add(UpSampling2D((2, 2)))
 model.add(Conv2D(32, (3, 3), activation='relu', padding='same'))
-model.add(Conv2D(2, (3, 3), activation='tanh', padding='same'))
+model.add(Conv2D(2, (3, 3), activation='sigmoid', padding='same'))
 model.add(UpSampling2D((2, 2)))
-model.compile(optimizer='rmsprop', loss='mse')
+model.compile(optimizer='adagrad', loss='mse')
 
 
 # Image transformer
@@ -112,7 +112,7 @@ plt.title('Training Loss')
 plt.xlabel('Epochs')
 plt.ylabel('Loss')
 plt.legend()
-plt.show()
+plt.savefig('mi_grafico.png')
 
 
 # Test images
@@ -139,7 +139,7 @@ for i in range(len(output)):
     cur = np.zeros((256, 256, 3))
     cur[:,:,0] = color_me[i][:,:,0]
     cur[:,:,1:] = output[i]
-    imsave("result/img_"+str(i)+".png", lab2rgb(cur))
+    imsave("starting_point/Beta-version/result/img_"+str(i)+".png", lab2rgb(cur))
 
 
 print("hola")

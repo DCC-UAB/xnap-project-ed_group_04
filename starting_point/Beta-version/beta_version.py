@@ -14,6 +14,7 @@ import numpy as np
 import os
 import random
 import tensorflow as tf
+<<<<<<< HEAD
 from skimage.util import img_as_ubyte  # Importar la función img_as_ubyte
 from skimage.exposure import rescale_intensity
 
@@ -50,12 +51,46 @@ for filename in os.listdir('starting_point/Full-version/Train/'):
     img = load_img('starting_point/Full-version/Train/' + filename)
     img = img.resize((256, 256))  # Redimensionar a 256x256 si es necesario
     X.append(img_to_array(img))
+=======
+
+
+
+class ColorizationDataLoader(tf.keras.utils.Sequence):
+    def __init__(self, directory, batch_size):
+        self.directory = directory
+        self.batch_size = batch_size
+        self.file_list = os.listdir(directory)
+        self.num_samples = len(self.file_list)
+        
+    def __len__(self):
+        return int(np.ceil(self.num_samples / self.batch_size))
+    
+    def __getitem__(self, idx):
+        batch_files = self.file_list[idx * self.batch_size: (idx + 1) * self.batch_size]
+        batch_images = []
+        
+        for filename in batch_files:
+            image = img_to_array(load_img(os.path.join(self.directory, filename)))
+            batch_images.append(image)
+        
+        X_batch = np.array(batch_images, dtype=float)
+        X_batch = X_batch / 255.0  # Normalize image data
+        
+        return X_batch, X_batch
+
+
+# Get images
+X = []
+for filename in os.listdir('starting_point/Full-version/Train/'):
+    X.append(img_to_array(load_img('starting_point/Full-version/Train/'+filename)))
+>>>>>>> 8ceda30eea70eb500dff055fdf868f318927bbfa
 X = np.array(X, dtype=float)
 
 # Set up train and test data
 split = int(0.95 * len(X))
 Xtrain = X[:split]
 Xtrain = Xtrain / 255.0  # Normalize image data
+
 
 model = Sequential()
 model.add(InputLayer(input_shape=(256, 256, 1)))
@@ -116,11 +151,16 @@ history = model.fit_generator(
 )
 
 
+
 # Collect training loss history
 history = model.fit_generator(
     image_a_b_gen(batch_size),
     callbacks=[TensorBoard(log_dir="starting_point/Beta-version/output/first_run")],
+<<<<<<< HEAD
     epochs=50,
+=======
+    epochs=5,
+>>>>>>> 8ceda30eea70eb500dff055fdf868f318927bbfa
     steps_per_epoch=20
 )
 
@@ -163,9 +203,13 @@ for i in range(len(output)):
     cur = np.zeros((256, 256, 3))
     cur[:,:,0] = color_me[i][:,:,0]
     cur[:,:,1:] = output[i]
+<<<<<<< HEAD
     cur = lab2rgb(cur)
     cur = img_as_ubyte(cur)  # Convertir a uint8
     imsave("starting_point/Beta-version/result/img_"+str(i)+".png", cur)
+=======
+    imsave("starting_point/Beta-version/result/img_"+str(i)+".png", lab2rgb(cur))
+>>>>>>> 8ceda30eea70eb500dff055fdf868f318927bbfa
 
 
 print("hola")

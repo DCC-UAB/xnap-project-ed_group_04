@@ -16,18 +16,6 @@ import random
 import tensorflow as tf
 from skimage import img_as_ubyte
 #from tensorflow.keras.layers import Input, Conv2D, UpSampling2D, MaxPooling2D
-import matplotlib.pyplot as plt
-import os
-import numpy as np
-from keras.preprocessing.image import ImageDataGenerator
-from skimage.color import rgb2lab, lab2rgb
-from skimage.io import imsave
-from tensorflow.keras.layers import BatchNormalization, Conv2D, InputLayer, UpSampling2D
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.callbacks import TensorBoard
-from tensorflow.keras.preprocessing.image import img_to_array, load_img
-import tensorflow as tf
-from skimage import img_as_ubyte
 from PIL import Image
 
 

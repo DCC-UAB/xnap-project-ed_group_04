@@ -1,95 +1,31 @@
 #!/usr/bin/env python
 # coding: utf-8
 import matplotlib.pyplot as plt
-from keras.layers import Conv2D, UpSampling2D, InputLayer, Conv2DTranspose, Input, MaxPooling2D
+from keras.layers import Conv2D, UpSampling2D, InputLayer, Conv2DTranspose, Input, Conv2D, UpSampling2D, MaxPooling2D
 from keras.layers import Activation, Dense, Dropout, Flatten
-from keras.layers import BatchNormalization
+from tensorflow.keras.layers import BatchNormalization
 from keras.models import Sequential
 from keras.callbacks import TensorBoard
 from keras.preprocessing.image import ImageDataGenerator
-from keras.utils import array_to_img, img_to_array, load_img
+from tensorflow.keras.utils import array_to_img, img_to_array, load_img
 from skimage.color import rgb2lab, lab2rgb, rgb2gray, xyz2lab
 from skimage.io import imsave
 import numpy as np
 import os
 import random
 import tensorflow as tf
-<<<<<<< HEAD
-from skimage.util import img_as_ubyte  # Importar la función img_as_ubyte
-from skimage.exposure import rescale_intensity
-
-
-
-class ColorizationDataLoader(tf.keras.utils.Sequence):
-    def __init__(self, directory, batch_size):
-        self.directory = directory
-        self.batch_size = batch_size
-        self.file_list = os.listdir(directory)
-        self.num_samples = len(self.file_list)
-        
-    def __len__(self):
-        return int(np.ceil(self.num_samples / self.batch_size))
-    
-    def __getitem__(self, idx):
-        batch_files = self.file_list[idx * self.batch_size: (idx + 1) * self.batch_size]
-        batch_images = []
-        
-        for filename in batch_files:
-            image = img_to_array(load_img(os.path.join(self.directory, filename)))
-            batch_images.append(image)
-        
-        X_batch = np.array(batch_images, dtype=float)
-        X_batch = X_batch / 255.0  # Normalize image data
-        
-        return X_batch, X_batch
-
-
-# Get images
-# Get images
-X = []
-for filename in os.listdir('starting_point/Full-version/Train/'):
-    img = load_img('starting_point/Full-version/Train/' + filename)
-    img = img.resize((256, 256))  # Redimensionar a 256x256 si es necesario
-    X.append(img_to_array(img))
-=======
-
-
-
-class ColorizationDataLoader(tf.keras.utils.Sequence):
-    def __init__(self, directory, batch_size):
-        self.directory = directory
-        self.batch_size = batch_size
-        self.file_list = os.listdir(directory)
-        self.num_samples = len(self.file_list)
-        
-    def __len__(self):
-        return int(np.ceil(self.num_samples / self.batch_size))
-    
-    def __getitem__(self, idx):
-        batch_files = self.file_list[idx * self.batch_size: (idx + 1) * self.batch_size]
-        batch_images = []
-        
-        for filename in batch_files:
-            image = img_to_array(load_img(os.path.join(self.directory, filename)))
-            batch_images.append(image)
-        
-        X_batch = np.array(batch_images, dtype=float)
-        X_batch = X_batch / 255.0  # Normalize image data
-        
-        return X_batch, X_batch
-
+#from tensorflow.keras.layers import Input, Conv2D, UpSampling2D, MaxPooling2D
 
 # Get images
 X = []
 for filename in os.listdir('starting_point/Full-version/Train/'):
     X.append(img_to_array(load_img('starting_point/Full-version/Train/'+filename)))
->>>>>>> 8ceda30eea70eb500dff055fdf868f318927bbfa
 X = np.array(X, dtype=float)
 
 # Set up train and test data
-split = int(0.95 * len(X))
+split = int(0.95*len(X))
 Xtrain = X[:split]
-Xtrain = Xtrain / 255.0  # Normalize image data
+Xtrain = 1.0/255*Xtrain
 
 
 model = Sequential()
@@ -107,9 +43,10 @@ model.add(UpSampling2D((2, 2)))
 model.add(Conv2D(64, (3, 3), activation='relu', padding='same'))
 model.add(UpSampling2D((2, 2)))
 model.add(Conv2D(32, (3, 3), activation='relu', padding='same'))
-model.add(Conv2D(2, (3, 3), activation='sigmoid', padding='same'))
+model.add(Conv2D(2, (3, 3), activation='tanh', padding='same'))
 model.add(UpSampling2D((2, 2)))
 model.compile(optimizer='adagrad', loss='mse')
+
 
 
 # Image transformer
@@ -120,49 +57,19 @@ datagen = ImageDataGenerator(
         horizontal_flip=True)
 
 # Generate training data
-# ...
-
-# Generate training data
 batch_size = 10
-
 def image_a_b_gen(batch_size):
-    while True:
-        batch_indices = np.random.randint(0, len(Xtrain), size=batch_size)
-        batch_images = Xtrain[batch_indices]
-        lab_batch = rgb2lab(batch_images)
-        X_batch = lab_batch[:, :, :, 0] / 100.0  # Escalar el canal L a [0, 1]
-        Y_batch = lab_batch[:, :, :, 1:] / 128
+    for batch in datagen.flow(Xtrain, batch_size=batch_size):
+        lab_batch = rgb2lab(batch)
+        X_batch = lab_batch[:,:,:,0]
+        Y_batch = lab_batch[:,:,:,1:] / 128
+        yield (X_batch.reshape(X_batch.shape+(1,)), Y_batch)
 
-        # Ajustar los valores de píxeles al rango válido
-        X_batch = np.clip(X_batch, 0, 1)
-        Y_batch = np.clip(Y_batch, -1, 1)
-
-        yield (X_batch.reshape(X_batch.shape + (1,)), Y_batch)
-
-# ...
-
-        
-# Collect training loss history
-history = model.fit_generator(
-    image_a_b_gen(batch_size),
-    callbacks=[TensorBoard(log_dir="starting_point/Beta-version/output/first_run")],
-    epochs=5,
-    steps_per_epoch=int(np.ceil(len(Xtrain) / batch_size))
-)
+# Train model      
+tensorboard = TensorBoard(log_dir="output/first_run")
+model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=10, steps_per_epoch=10)
 
 
-
-# Collect training loss history
-history = model.fit_generator(
-    image_a_b_gen(batch_size),
-    callbacks=[TensorBoard(log_dir="starting_point/Beta-version/output/first_run")],
-<<<<<<< HEAD
-    epochs=50,
-=======
-    epochs=5,
->>>>>>> 8ceda30eea70eb500dff055fdf868f318927bbfa
-    steps_per_epoch=20
-)
 
 # Save model
 model_json = model.to_json()
@@ -170,21 +77,14 @@ with open("model.json", "w") as json_file:
     json_file.write(model_json)
 model.save_weights("model.h5")
 
-# Plot training loss
-loss = history.history['loss']
-epochs = range(1, len(loss) + 1)
-plt.plot(epochs, loss, 'b', label='Training Loss')
-plt.title('Training Loss')
-plt.xlabel('Epochs')
-plt.ylabel('Loss')
-plt.legend()
-plt.savefig('mi_grafico.png')
-
 
 # Test images
-Xtest = rgb2lab(X[split:] / 255.0)[:, :, :, 0]  # Normalize and convert to LAB
-Xtest = Xtest.reshape(Xtest.shape + (1,))
-Ytest = rgb2lab(X[split:] / 255.0)[:, :, :, 1:] / 128
+Xtest = rgb2lab(1.0/255*X[split:])[:,:,:,0]
+Xtest = Xtest.reshape(Xtest.shape+(1,))
+Ytest = rgb2lab(1.0/255*X[split:])[:,:,:,1:]
+Ytest = Ytest / 128
+print(model.evaluate(Xtest, Ytest, batch_size=batch_size))
+
 
 
 color_me = []
@@ -203,13 +103,4 @@ for i in range(len(output)):
     cur = np.zeros((256, 256, 3))
     cur[:,:,0] = color_me[i][:,:,0]
     cur[:,:,1:] = output[i]
-<<<<<<< HEAD
-    cur = lab2rgb(cur)
-    cur = img_as_ubyte(cur)  # Convertir a uint8
-    imsave("starting_point/Beta-version/result/img_"+str(i)+".png", cur)
-=======
     imsave("starting_point/Beta-version/result/img_"+str(i)+".png", lab2rgb(cur))
->>>>>>> 8ceda30eea70eb500dff055fdf868f318927bbfa
-
-
-print("hola")

@@ -3,11 +3,11 @@
 import matplotlib.pyplot as plt
 from keras.layers import Conv2D, UpSampling2D, InputLayer, Conv2DTranspose, Input, Conv2D, UpSampling2D, MaxPooling2D
 from keras.layers import Activation, Dense, Dropout, Flatten
-from tensorflow.keras.layers import BatchNormalization
+from keras.layers import BatchNormalization
 from keras.models import Sequential
 from keras.callbacks import TensorBoard
 from keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.utils import array_to_img, img_to_array, load_img
+from keras.utils import array_to_img, img_to_array, load_img
 from skimage.color import rgb2lab, lab2rgb, rgb2gray, xyz2lab
 from skimage.io import imsave
 import numpy as np
@@ -46,6 +46,8 @@ X = np.array(X, dtype=float)
 split = int(0.95 * len(X))
 Xtrain = X[:split]
 Xtrain = 1.0 / 255 * Xtrain
+
+
 model = Sequential()
 model.add(InputLayer(input_shape=(256, 256, 1)))
 model.add(Conv2D(64, (3, 3), activation='relu', padding='same'))
@@ -54,9 +56,6 @@ model.add(Conv2D(128, (3, 3), activation='relu', padding='same'))
 model.add(Conv2D(128, (3, 3), activation='relu', padding='same', strides=2))
 model.add(Conv2D(256, (3, 3), activation='relu', padding='same'))
 model.add(Conv2D(256, (3, 3), activation='relu', padding='same', strides=2))
-model.add(Conv2D(512, (3, 3), activation='relu', padding='same'))
-model.add(Conv2D(256, (3, 3), activation='relu', padding='same'))
-model.add(Conv2D(128, (3, 3), activation='relu', padding='same'))
 model.add(Conv2D(512, (3, 3), activation='relu', padding='same'))
 model.add(Conv2D(256, (3, 3), activation='relu', padding='same'))
 model.add(Conv2D(128, (3, 3), activation='relu', padding='same'))
@@ -96,7 +95,7 @@ def image_a_b_gen(batch_size):
 #-------------------------------------------------------------------------------------------------------------------------
 # Train model      
 tensorboard = TensorBoard(log_dir="output/first_run")
-history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=50, steps_per_epoch=10)
+history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=100, steps_per_epoch=10)
 
 # Save model
 model_json = model.to_json()

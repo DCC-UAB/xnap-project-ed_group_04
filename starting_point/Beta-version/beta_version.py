@@ -30,7 +30,7 @@ import tensorflow as tf
 from skimage import img_as_ubyte
 from PIL import Image
 
-# Get images
+
 # Get images
 X = []
 for filename in os.listdir('starting_point/Beta-version/Paisajes_train/'):
@@ -66,25 +66,33 @@ model.add(Conv2D(2, (3, 3), activation='tanh', padding='same'))
 model.add(UpSampling2D((2, 2)))
 model.compile(optimizer='adagrad', loss='mse', metrics=['accuracy'])
 
-# Image transformer
+
+
+#------------------------------------------DATA LOADER--------------------------------------------------------------
+# Image transformer   data augmentation
 datagen = ImageDataGenerator(
+        
+       
         shear_range=0.2,
         zoom_range=0.2,
         rotation_range=20,
-        horizontal_flip=True)
+        horizontal_flip=True, 
+        vertical_flip=True)
 
 # Generate training data
 batch_size = 10
 def image_a_b_gen(batch_size):
-    for batch in datagen.flow(Xtrain, batch_size=batch_size):
+    for batch in datagen.flow(Xtrain, batch_size=batch_size):  #entrena per bloc
         lab_batch = rgb2lab(batch)
         X_batch = lab_batch[:, :, :, 0]
         Y_batch = lab_batch[:, :, :, 1:] / 128
-        yield (X_batch.reshape(X_batch.shape + (1,)), Y_batch)
+        yield (X_batch.reshape(X_batch.shape + (1,)), Y_batch)  #retorna cada bloc de dades de train
 
+
+#-------------------------------------------------------------------------------------------------------------------------
 # Train model      
 tensorboard = TensorBoard(log_dir="output/first_run")
-history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=10, steps_per_epoch=10)
+history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=50, steps_per_epoch=10)
 
 # Save model
 model_json = model.to_json()

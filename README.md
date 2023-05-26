@@ -1,5 +1,5 @@
 [![Open in Visual Studio Code](https://classroom.github.com/assets/open-in-vscode-718a45dd9cf7e7f842a935f5ebbe5719a5e09af4491e668f4dbf3b35d5cca122.svg)](https://classroom.github.com/online_ide?assignment_repo_id=11122322&assignment_repo_type=AssignmentRepo)
-# XNAP-Project title (replace it by the title of your project)
+# XNAP-Project COLOURING 
 Write here a short summary about your project. The text must include a short introduction and the targeted goals
 
 ## Code structure
@@ -21,7 +21,11 @@ python main.py
 
 
 ## Contributors
-Write here the name and UAB mail of the group members
+Yasmin L'Harrak: 1603496@uab.cat
+
+Nuria Salvador: 1605592@uab.cat
+
+Amal El Hammoudi 1608672@uab.cat
 
 Xarxes Neuronals i Aprenentatge Profund
 Grau de __Write here the name of your estudies (Artificial Intelligence, Data Engineering or Computational Mathematics & Data analyitics)__, 

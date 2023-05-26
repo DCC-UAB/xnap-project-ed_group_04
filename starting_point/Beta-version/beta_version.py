@@ -33,9 +33,9 @@ from PIL import Image
 # Get images
 # Get images
 X = []
-for filename in os.listdir('starting_point/Beta-version/Paisajes2/'):
+for filename in os.listdir('starting_point/Beta-version/Paisajes_train/'):
     if filename.endswith(".jpg") or filename.endswith(".png"):
-        img = Image.open('starting_point/Beta-version/Paisajes2/' + filename)
+        img = Image.open('starting_point/Beta-version/Paisajes_train/' + filename)
         img = img.resize((256, 256))  # Asegurar que todas las imágenes tengan las mismas dimensiones
         X.append(img_to_array(img))
 X = np.array(X, dtype=float)

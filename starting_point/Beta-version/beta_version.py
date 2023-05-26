@@ -22,9 +22,9 @@ import numpy as np
 from keras.preprocessing.image import ImageDataGenerator
 from skimage.color import rgb2lab, lab2rgb
 from skimage.io import imsave
-from keras.layers import BatchNormalization, Conv2D, InputLayer, UpSampling2D
-from keras.models import Sequential
-from keras.callbacks import TensorBoard
+from tensorflow.keras.layers import BatchNormalization, Conv2D, InputLayer, UpSampling2D
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.callbacks import TensorBoard
 from tensorflow.keras.preprocessing.image import img_to_array, load_img
 import tensorflow as tf
 from skimage import img_as_ubyte
@@ -37,7 +37,7 @@ X = []
 for filename in os.listdir('starting_point/Beta-version/Paisajes_train/'):
     if filename.endswith(".jpg") or filename.endswith(".png"):
         img = Image.open('starting_point/Beta-version/Paisajes_train/' + filename)
-        img = img.resize((256, 256))  # Asegurar que todas las imágenes tengan las mismas dimensiones
+        img = img.resize((256, 256))  # Asegurar que todas las imÃ¡genes tengan las mismas dimensiones
         X.append(img_to_array(img))
 X = np.array(X, dtype=float)
 
@@ -97,7 +97,7 @@ def image_a_b_gen(batch_size):
 #-------------------------------------------------------------------------------------------------------------------------
 # Train model      
 tensorboard = TensorBoard(log_dir="output/first_run")
-history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=200, steps_per_epoch=50)
+history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=100, steps_per_epoch=10)
 
 # Save model
 model_json = model.to_json()

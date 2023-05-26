@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 import matplotlib.pyplot as plt
-from keras.layers import Conv2D, UpSampling2D, InputLayer, Conv2DTranspose
+from keras.layers import Conv2D, UpSampling2D, InputLayer, Conv2DTranspose, Input, Conv2D, UpSampling2D, MaxPooling2D
 from keras.layers import Activation, Dense, Dropout, Flatten
 from tensorflow.keras.layers import BatchNormalization
 from keras.models import Sequential
@@ -14,54 +14,34 @@ import numpy as np
 import os
 import random
 import tensorflow as tf
-
-
-class ColorizationDataLoader(tf.keras.utils.Sequence):
-    def __init__(self, directory, batch_size):
-        self.directory = directory
-        self.batch_size = batch_size
-        self.file_list = os.listdir(directory)
-        self.num_samples = len(self.file_list)
-        
-    def __len__(self):
-        return int(np.ceil(self.num_samples / self.batch_size))
-    
-    def __getitem__(self, idx):
-        batch_files = self.file_list[idx * self.batch_size: (idx + 1) * self.batch_size]
-        batch_images = []
-        
-        for filename in batch_files:
-            image = img_to_array(load_img(os.path.join(self.directory, filename)))
-            batch_images.append(image)
-        
-        X_batch = np.array(batch_images, dtype=float)
-        X_batch = X_batch / 255.0  # Normalize image data
-        
-        return X_batch, X_batch
+from skimage import img_as_ubyte
+#from tensorflow.keras.layers import Input, Conv2D, UpSampling2D, MaxPooling2D
+import matplotlib.pyplot as plt
+import os
+import numpy as np
+from keras.preprocessing.image import ImageDataGenerator
+from skimage.color import rgb2lab, lab2rgb
+from skimage.io import imsave
+from tensorflow.keras.layers import BatchNormalization, Conv2D, InputLayer, UpSampling2D
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.callbacks import TensorBoard
+from tensorflow.keras.preprocessing.image import img_to_array, load_img
+import tensorflow as tf
+from skimage import img_as_ubyte
+from PIL import Image
 
 
 # Get images
 # TRAIN--------------------------------------------------------------------------------------------
 X = []
-image_size = (256, 256)  # Tamaño de imagen deseado
-for filename in os.listdir('starting_point/Beta-version/Paisatges/'):
-    if filename.endswith(('.jpg', '.jpeg', '.png')):  # Validar extensiones de imagen
-        try:
-            image = load_img('starting_point/Beta-version/Paisatges/' + filename)
-            image = image.resize(image_size) 
-            X.append(img_to_array(image))
-        except (IOError, OSError, UnidentifiedImageError) as e:
-            print(f"Error al cargar la imagen {filename}: {e}")
-
+for filename in os.listdir('starting_point/Full-version/Train/'):
+    X.append(img_to_array(load_img('starting_point/Full-version/Train/'+filename)))
 X = np.array(X, dtype=float)
 
-#---------------------------------------------------------------------------------------------------
 # Set up train and test data
-split = int(0.95*len(X))
+split = int(0.95 * len(X))
 Xtrain = X[:split]
-Xtrain = 1.0/255*Xtrain
-
-
+Xtrain = 1.0 / 255 * Xtrain
 model = Sequential()
 model.add(InputLayer(input_shape=(256, 256, 1)))
 model.add(Conv2D(64, (3, 3), activation='relu', padding='same'))
@@ -73,29 +53,38 @@ model.add(Conv2D(256, (3, 3), activation='relu', padding='same', strides=2))
 model.add(Conv2D(512, (3, 3), activation='relu', padding='same'))
 model.add(Conv2D(256, (3, 3), activation='relu', padding='same'))
 model.add(Conv2D(128, (3, 3), activation='relu', padding='same'))
+model.add(Conv2D(512, (3, 3), activation='relu', padding='same'))
+model.add(Conv2D(256, (3, 3), activation='relu', padding='same'))
+model.add(Conv2D(128, (3, 3), activation='relu', padding='same'))
+model.add(Conv2D(512, (3, 3), activation='relu', padding='same'))
+model.add(Conv2D(256, (3, 3), activation='relu', padding='same'))
+model.add(Conv2D(128, (3, 3), activation='relu', padding='same'))
 model.add(UpSampling2D((2, 2)))
 model.add(Conv2D(64, (3, 3), activation='relu', padding='same'))
 model.add(UpSampling2D((2, 2)))
 model.add(Conv2D(32, (3, 3), activation='relu', padding='same'))
 model.add(Conv2D(2, (3, 3), activation='sigmoid', padding='same')) #sigmoid -> activació
 model.add(UpSampling2D((2, 2)))
-model.compile(optimizer='adagrad', loss='mse')  #probar amb adam i binary_crossentropy
+model.compile(optimizer='rmsprop', loss='mse')
 
 
-# Image transformer
+#------------------------------------------DATA LOADER--------------------------------------------------------------
+# Image transformer   data augmentation
 datagen = ImageDataGenerator(
+        
+       
         shear_range=0.2,
         zoom_range=0.2,
         rotation_range=20,
-        horizontal_flip=True)
+        horizontal_flip=True, 
+        vertical_flip=True)
 
 # Generate training data
 batch_size = 10
-
 def image_a_b_gen(batch_size):
-    for batch in datagen.flow(Xtrain, batch_size=batch_size):
+    for batch in datagen.flow(Xtrain, batch_size=batch_size):  #entrena per bloc
         lab_batch = rgb2lab(batch)
-        X_batch = lab_batch[:,:,:,0] / 100
+        X_batch = lab_batch[:,:,:,0]
         Y_batch = lab_batch[:,:,:,1:] / 128
         yield (X_batch.reshape(X_batch.shape+(1,)), Y_batch)
 
@@ -104,7 +93,7 @@ def image_a_b_gen(batch_size):
 history = model.fit_generator(
     image_a_b_gen(batch_size),
     callbacks=[TensorBoard(log_dir="starting_point/Beta-version/output/first_run")],
-    epochs=20,
+    epochs=300,
     steps_per_epoch=20
 )
 
@@ -114,41 +103,39 @@ with open("model.json", "w") as json_file:
     json_file.write(model_json)
 model.save_weights("model.h5")
 
-# Plot training loss
-loss = history.history['loss']
-epochs = range(1, len(loss) + 1)
-plt.plot(epochs, loss, 'b', label='Training Loss')
+# Process history
+losses = history.history['loss']
+accuracies = history.history['accuracy']
+
+# Plot learning curves
+plt.figure(figsize=(12, 6))
+plt.subplot(1, 2, 1)
+plt.plot(range(1, len(losses) + 1), losses)
+plt.xlabel('Iteration')
+plt.ylabel('Loss')
 plt.title('Training Loss')
 plt.xlabel('Epochs')
 plt.ylabel('Loss')
 plt.legend()
 plt.show()
-plt.savefig('mi_grafico.png')
 
+plt.tight_layout()
+plt.savefig('starting_point/Beta-version/result/learning_curves.png')
+plt.close()
 
-# Test images------------------------------------------------------------------------------
-Xtest = rgb2lab(1.0/255*X[split:])[:,:,:,0] / 100  # Normaliza el canal L a escala [0, 1]
+# Test images
+Xtest = rgb2lab(1.0/255*X[split:])[:,:,:,0]
 Xtest = Xtest.reshape(Xtest.shape+(1,))
-#Ytest = rgb2lab(1.0/255*X[split:])[:,:,:,1:]
-Ytest = rgb2lab(1.0/255*X[split:])[:,:,:,1:] / 128 
+Ytest = rgb2lab(1.0/255*X[split:])[:,:,:,1:]
 Ytest = Ytest / 128
 print(model.evaluate(Xtest, Ytest, batch_size=batch_size))
 
-
 color_me = []
-for filename in os.listdir('starting_point/Beta-version/Paisatges/'):
-    if filename.endswith(('.jpg', '.jpeg', '.png')):  # Validar extensiones de imagen
-        try:
-            img = load_img('starting_point/Beta-version/Paisatges/'+filename)
-            img = img.resize(image_size)
-
-            color_me.append(img_to_array(img))
-        except (IOError, OSError, UnidentifiedImageError) as e:
-            print(f"Error al cargar la imagen {filename}: {e}")
-            
+for filename in os.listdir('starting_point/Full-version/Test/'):
+    color_me.append(img_to_array(load_img('starting_point/Full-version/Test/'+filename)))
 color_me = np.array(color_me, dtype=float)
-color_me = rgb2lab(1.0/255*color_me)[:,:,:,0]
-color_me = color_me.reshape(color_me.shape+(1,))
+color_me = rgb2lab(1.0 / 255 * color_me)[:, :, :, 0]
+color_me = color_me.reshape(color_me.shape + (1,))
 
 
 # Test model
@@ -160,8 +147,5 @@ for i in range(len(output)):
     cur = np.zeros((256, 256, 3))
     cur[:,:,0] = color_me[i][:,:,0]
     cur[:,:,1:] = output[i]
-    imsave("starting_point/Beta-version/result/img_"+str(i)+".png", lab2rgb(cur))
+    imsave("result/img_"+str(i)+".png", lab2rgb(cur))
 
-
-
-print("hola")

@@ -22,13 +22,14 @@ import numpy as np
 from keras.preprocessing.image import ImageDataGenerator
 from skimage.color import rgb2lab, lab2rgb
 from skimage.io import imsave
-from tensorflow.keras.layers import BatchNormalization, Conv2D, InputLayer, UpSampling2D
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.callbacks import TensorBoard
+from keras.layers import BatchNormalization, Conv2D, InputLayer, UpSampling2D
+from keras.models import Sequential
+from keras.callbacks import TensorBoard
 from tensorflow.keras.preprocessing.image import img_to_array, load_img
 import tensorflow as tf
 from skimage import img_as_ubyte
 from PIL import Image
+from keras import optimizers
 
 
 # Get images
@@ -68,6 +69,7 @@ model.add(UpSampling2D((2, 2)))
 model.add(Conv2D(32, (3, 3), activation='relu', padding='same'))
 model.add(Conv2D(2, (3, 3), activation='tanh', padding='same'))
 model.add(UpSampling2D((2, 2)))
+#optimizerAda = optimizers.Adagrad(lr=0.001)
 model.compile(optimizer='adagrad', loss='mse', metrics=['accuracy'])
 
 
@@ -79,8 +81,8 @@ datagen = ImageDataGenerator(
         shear_range=0.2,
         zoom_range=0.2,
         rotation_range=20,
-        horizontal_flip=True, 
-        vertical_flip=True)
+        horizontal_flip=True, #false
+        vertical_flip=True)#false
 
 # Generate training data
 batch_size = 10
@@ -95,7 +97,7 @@ def image_a_b_gen(batch_size):
 #-------------------------------------------------------------------------------------------------------------------------
 # Train model      
 tensorboard = TensorBoard(log_dir="output/first_run")
-history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=100, steps_per_epoch=10)
+history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=200, steps_per_epoch=50)
 
 # Save model
 model_json = model.to_json()

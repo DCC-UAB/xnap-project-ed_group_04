@@ -41,11 +41,21 @@ class ColorizationDataLoader(tf.keras.utils.Sequence):
 
 
 # Get images
+# TRAIN--------------------------------------------------------------------------------------------
 X = []
-for filename in os.listdir('starting_point/Full-version/Train/'):
-    X.append(img_to_array(load_img('starting_point/Full-version/Train/'+filename)))
+image_size = (256, 256)  # Tamaño de imagen deseado
+for filename in os.listdir('starting_point/Beta-version/Paisatges/'):
+    if filename.endswith(('.jpg', '.jpeg', '.png')):  # Validar extensiones de imagen
+        try:
+            image = load_img('starting_point/Beta-version/Paisatges/' + filename)
+            image = image.resize(image_size) 
+            X.append(img_to_array(image))
+        except (IOError, OSError, UnidentifiedImageError) as e:
+            print(f"Error al cargar la imagen {filename}: {e}")
+
 X = np.array(X, dtype=float)
 
+#---------------------------------------------------------------------------------------------------
 # Set up train and test data
 split = int(0.95*len(X))
 Xtrain = X[:split]
@@ -67,9 +77,9 @@ model.add(UpSampling2D((2, 2)))
 model.add(Conv2D(64, (3, 3), activation='relu', padding='same'))
 model.add(UpSampling2D((2, 2)))
 model.add(Conv2D(32, (3, 3), activation='relu', padding='same'))
-model.add(Conv2D(2, (3, 3), activation='tanh', padding='same'))
+model.add(Conv2D(2, (3, 3), activation='sigmoid', padding='same')) #sigmoid -> activació
 model.add(UpSampling2D((2, 2)))
-model.compile(optimizer='rmsprop', loss='mse')
+model.compile(optimizer='adagrad', loss='mse')  #probar amb adam i binary_crossentropy
 
 
 # Image transformer
@@ -85,7 +95,7 @@ batch_size = 10
 def image_a_b_gen(batch_size):
     for batch in datagen.flow(Xtrain, batch_size=batch_size):
         lab_batch = rgb2lab(batch)
-        X_batch = lab_batch[:,:,:,0]
+        X_batch = lab_batch[:,:,:,0] / 100
         Y_batch = lab_batch[:,:,:,1:] / 128
         yield (X_batch.reshape(X_batch.shape+(1,)), Y_batch)
 
@@ -94,7 +104,7 @@ def image_a_b_gen(batch_size):
 history = model.fit_generator(
     image_a_b_gen(batch_size),
     callbacks=[TensorBoard(log_dir="starting_point/Beta-version/output/first_run")],
-    epochs=300,
+    epochs=20,
     steps_per_epoch=20
 )
 
@@ -113,22 +123,33 @@ plt.xlabel('Epochs')
 plt.ylabel('Loss')
 plt.legend()
 plt.show()
+plt.savefig('mi_grafico.png')
 
 
-# Test images
-Xtest = rgb2lab(1.0/255*X[split:])[:,:,:,0]
+# Test images------------------------------------------------------------------------------
+Xtest = rgb2lab(1.0/255*X[split:])[:,:,:,0] / 100  # Normaliza el canal L a escala [0, 1]
 Xtest = Xtest.reshape(Xtest.shape+(1,))
-Ytest = rgb2lab(1.0/255*X[split:])[:,:,:,1:]
+#Ytest = rgb2lab(1.0/255*X[split:])[:,:,:,1:]
+Ytest = rgb2lab(1.0/255*X[split:])[:,:,:,1:] / 128 
 Ytest = Ytest / 128
 print(model.evaluate(Xtest, Ytest, batch_size=batch_size))
 
 
 color_me = []
-for filename in os.listdir('starting_point/Full-version/Test/'):
-    color_me.append(img_to_array(load_img('starting_point/Full-version/Test/'+filename)))
+for filename in os.listdir('starting_point/Beta-version/Paisatges/'):
+    if filename.endswith(('.jpg', '.jpeg', '.png')):  # Validar extensiones de imagen
+        try:
+            img = load_img('starting_point/Beta-version/Paisatges/'+filename)
+            img = img.resize(image_size)
+
+            color_me.append(img_to_array(img))
+        except (IOError, OSError, UnidentifiedImageError) as e:
+            print(f"Error al cargar la imagen {filename}: {e}")
+            
 color_me = np.array(color_me, dtype=float)
 color_me = rgb2lab(1.0/255*color_me)[:,:,:,0]
 color_me = color_me.reshape(color_me.shape+(1,))
+
 
 # Test model
 output = model.predict(color_me)
@@ -139,7 +160,8 @@ for i in range(len(output)):
     cur = np.zeros((256, 256, 3))
     cur[:,:,0] = color_me[i][:,:,0]
     cur[:,:,1:] = output[i]
-    imsave("result/img_"+str(i)+".png", lab2rgb(cur))
+    imsave("starting_point/Beta-version/result/img_"+str(i)+".png", lab2rgb(cur))
+
 
 
 print("hola")

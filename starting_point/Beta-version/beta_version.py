@@ -28,12 +28,19 @@ from tensorflow.keras.callbacks import TensorBoard
 from tensorflow.keras.preprocessing.image import img_to_array, load_img
 import tensorflow as tf
 from skimage import img_as_ubyte
+from PIL import Image
 
 # Get images
+# Get images
 X = []
-for filename in os.listdir('starting_point/Full-version/Train/'):
-    X.append(img_to_array(load_img('starting_point/Full-version/Train/'+filename)))
+for filename in os.listdir('starting_point/Beta-version/Paisajes2/'):
+    if filename.endswith(".jpg") or filename.endswith(".png"):
+        img = Image.open('starting_point/Beta-version/Paisajes2/' + filename)
+        img = img.resize((256, 256))  # Asegurar que todas las imágenes tengan las mismas dimensiones
+        X.append(img_to_array(img))
 X = np.array(X, dtype=float)
+
+
 
 # Set up train and test data
 split = int(0.95 * len(X))
@@ -117,8 +124,11 @@ Ytest = Ytest / 128
 print(model.evaluate(Xtest, Ytest, batch_size=batch_size))
 
 color_me = []
-for filename in os.listdir('starting_point/Full-version/Test/'):
-    color_me.append(img_to_array(load_img('starting_point/Full-version/Test/' + filename)))
+for filename in os.listdir('starting_point/Beta-version/Paisajes2/'):
+    if filename.endswith(".jpg") or filename.endswith(".png"):
+        img = Image.open('starting_point/Beta-version/Paisajes2/' + filename)
+        img = img.resize((256, 256))
+        color_me.append(img_to_array(img))
 color_me = np.array(color_me, dtype=float)
 color_me = rgb2lab(1.0 / 255 * color_me)[:, :, :, 0]
 color_me = color_me.reshape(color_me.shape + (1,))

@@ -14,7 +14,20 @@ import numpy as np
 import os
 import random
 import tensorflow as tf
+from skimage import img_as_ubyte
 #from tensorflow.keras.layers import Input, Conv2D, UpSampling2D, MaxPooling2D
+import matplotlib.pyplot as plt
+import os
+import numpy as np
+from keras.preprocessing.image import ImageDataGenerator
+from skimage.color import rgb2lab, lab2rgb
+from skimage.io import imsave
+from tensorflow.keras.layers import BatchNormalization, Conv2D, InputLayer, UpSampling2D
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.callbacks import TensorBoard
+from tensorflow.keras.preprocessing.image import img_to_array, load_img
+import tensorflow as tf
+from skimage import img_as_ubyte
 
 # Get images
 X = []
@@ -23,10 +36,9 @@ for filename in os.listdir('starting_point/Full-version/Train/'):
 X = np.array(X, dtype=float)
 
 # Set up train and test data
-split = int(0.95*len(X))
+split = int(0.95 * len(X))
 Xtrain = X[:split]
-Xtrain = 1.0/255*Xtrain
-
+Xtrain = 1.0 / 255 * Xtrain
 
 model = Sequential()
 model.add(InputLayer(input_shape=(256, 256, 1)))
@@ -45,9 +57,7 @@ model.add(UpSampling2D((2, 2)))
 model.add(Conv2D(32, (3, 3), activation='relu', padding='same'))
 model.add(Conv2D(2, (3, 3), activation='tanh', padding='same'))
 model.add(UpSampling2D((2, 2)))
-model.compile(optimizer='adagrad', loss='mse')
-
-
+model.compile(optimizer='adagrad', loss='mse', metrics=['accuracy'])
 
 # Image transformer
 datagen = ImageDataGenerator(
@@ -61,15 +71,13 @@ batch_size = 10
 def image_a_b_gen(batch_size):
     for batch in datagen.flow(Xtrain, batch_size=batch_size):
         lab_batch = rgb2lab(batch)
-        X_batch = lab_batch[:,:,:,0]
-        Y_batch = lab_batch[:,:,:,1:] / 128
-        yield (X_batch.reshape(X_batch.shape+(1,)), Y_batch)
+        X_batch = lab_batch[:, :, :, 0]
+        Y_batch = lab_batch[:, :, :, 1:] / 128
+        yield (X_batch.reshape(X_batch.shape + (1,)), Y_batch)
 
 # Train model      
 tensorboard = TensorBoard(log_dir="output/first_run")
-model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=10, steps_per_epoch=10)
-
-
+history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=10, steps_per_epoch=10)
 
 # Save model
 model_json = model.to_json()
@@ -77,22 +85,43 @@ with open("model.json", "w") as json_file:
     json_file.write(model_json)
 model.save_weights("model.h5")
 
+# Process history
+losses = history.history['loss']
+accuracies = history.history['accuracy']
+
+# Plot learning curves
+plt.figure(figsize=(12, 6))
+plt.subplot(1, 2, 1)
+plt.plot(range(1, len(losses) + 1), losses)
+plt.xlabel('Iteration')
+plt.ylabel('Loss')
+plt.title('Training Loss')
+plt.grid(True)
+
+plt.subplot(1, 2, 2)
+plt.plot(range(1, len(accuracies) + 1), accuracies)
+plt.xlabel('Iteration')
+plt.ylabel('Accuracy')
+plt.title('Training Accuracy')
+plt.grid(True)
+
+plt.tight_layout()
+plt.savefig('starting_point/Beta-version/result/learning_curves.png')
+plt.close()
 
 # Test images
-Xtest = rgb2lab(1.0/255*X[split:])[:,:,:,0]
-Xtest = Xtest.reshape(Xtest.shape+(1,))
-Ytest = rgb2lab(1.0/255*X[split:])[:,:,:,1:]
+Xtest = rgb2lab(1.0 / 255 * X[split:])[:, :, :, 0]
+Xtest = Xtest.reshape(Xtest.shape + (1,))
+Ytest = rgb2lab(1.0 / 255 * X[split:])[:, :, :, 1:]
 Ytest = Ytest / 128
 print(model.evaluate(Xtest, Ytest, batch_size=batch_size))
 
-
-
 color_me = []
 for filename in os.listdir('starting_point/Full-version/Test/'):
-    color_me.append(img_to_array(load_img('starting_point/Full-version/Test/'+filename)))
+    color_me.append(img_to_array(load_img('starting_point/Full-version/Test/' + filename)))
 color_me = np.array(color_me, dtype=float)
-color_me = rgb2lab(1.0/255*color_me)[:,:,:,0]
-color_me = color_me.reshape(color_me.shape+(1,))
+color_me = rgb2lab(1.0 / 255 * color_me)[:, :, :, 0]
+color_me = color_me.reshape(color_me.shape + (1,))
 
 # Test model
 output = model.predict(color_me)
@@ -101,6 +130,8 @@ output = output * 128
 # Output colorizations
 for i in range(len(output)):
     cur = np.zeros((256, 256, 3))
-    cur[:,:,0] = color_me[i][:,:,0]
-    cur[:,:,1:] = output[i]
-    imsave("starting_point/Beta-version/result/img_"+str(i)+".png", lab2rgb(cur))
+    cur[:, :, 0] = color_me[i][:, :, 0]
+    cur[:, :, 1:] = output[i]
+    cur = lab2rgb(cur)
+   
+    imsave("starting_point/Beta-version/result/img_" + str(i) + ".png", cur)

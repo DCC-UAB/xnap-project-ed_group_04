@@ -3,11 +3,11 @@
 import matplotlib.pyplot as plt
 from keras.layers import Conv2D, UpSampling2D, InputLayer, Conv2DTranspose, Input, Conv2D, UpSampling2D, MaxPooling2D
 from keras.layers import Activation, Dense, Dropout, Flatten
-from tensorflow.keras.layers import BatchNormalization
+from keras.layers import BatchNormalization
 from keras.models import Sequential
 from keras.callbacks import TensorBoard
 from keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.utils import array_to_img, img_to_array, load_img
+from keras.utils import array_to_img, img_to_array, load_img
 from skimage.color import rgb2lab, lab2rgb, rgb2gray, xyz2lab
 from skimage.io import imsave
 import numpy as np
@@ -16,18 +16,6 @@ import random
 import tensorflow as tf
 from skimage import img_as_ubyte
 #from tensorflow.keras.layers import Input, Conv2D, UpSampling2D, MaxPooling2D
-import matplotlib.pyplot as plt
-import os
-import numpy as np
-from keras.preprocessing.image import ImageDataGenerator
-from skimage.color import rgb2lab, lab2rgb
-from skimage.io import imsave
-from tensorflow.keras.layers import BatchNormalization, Conv2D, InputLayer, UpSampling2D
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.callbacks import TensorBoard
-from tensorflow.keras.preprocessing.image import img_to_array, load_img
-import tensorflow as tf
-from skimage import img_as_ubyte
 from PIL import Image
 
 
@@ -95,7 +83,7 @@ def image_a_b_gen(batch_size):
 #-------------------------------------------------------------------------------------------------------------------------
 # Train model      
 tensorboard = TensorBoard(log_dir="output/first_run")
-history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=5, steps_per_epoch=10)
+history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=50, steps_per_epoch=10)
 
 # Save model
 model_json = model.to_json()

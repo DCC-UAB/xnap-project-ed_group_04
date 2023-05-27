@@ -8,6 +8,8 @@ Amal El Hammoudi 1608672@uab.cat
 Xarxes Neuronals i Aprenentatge Profund -Grau de Data Engineering UAB, 2023
 
 
+
+
 ## INTRODUCCIÓ
 
 Amb els avenços tecnològics de deep learning, l'àmbit del processament d'imatges ha avançat de manera significativa, donant pas a reptes com ara afegir color a imatges a escala de grisos.
@@ -19,6 +21,8 @@ Dit d’una altra manera, mitjançant l'entrenament previ, la xarxa adquireix la
 Aquest tema en qüestió ha captat una atenció considerable i ha estat objecte d'ampli debat i anàlisi en diversos cercles artístics, com ara la restauració d'imatges antigues de baixa qualitat o millora de la representació visual.
 
 No obstant això, no és l'únic àmbit en el qual s'aplica aquesta tecnologia, també s'utilitza per acolorir elements multimèdia, obrint noves possibilitats en la restauració de videos històrics, pel·lícules en blanc i negre i altres continguts audiovisuals en camps cinematogràfics, la televisió…
+
+
 
 
 

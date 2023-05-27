@@ -22,10 +22,6 @@ import numpy as np
 from keras.preprocessing.image import ImageDataGenerator
 from skimage.color import rgb2lab, lab2rgb
 from skimage.io import imsave
-from tensorflow.keras.layers import BatchNormalization, Conv2D, InputLayer, UpSampling2D
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.callbacks import TensorBoard
-from tensorflow.keras.preprocessing.image import img_to_array, load_img
 import tensorflow as tf
 from skimage import img_as_ubyte
 from PIL import Image
@@ -34,9 +30,9 @@ from keras import optimizers
 
 # Get images
 X = []
-for filename in os.listdir('starting_point/Beta-version/Paisajes_train/'):
+for filename in os.listdir('starting_point/Beta-version/Paisaje_train/'):
     if filename.endswith(".jpg") or filename.endswith(".png"):
-        img = Image.open('starting_point/Beta-version/Paisajes_train/' + filename)
+        img = Image.open('starting_point/Beta-version/Paisaje_train/' + filename)
         img = img.resize((256, 256))  # Asegurar que todas las imÃ¡genes tengan las mismas dimensiones
         X.append(img_to_array(img))
 X = np.array(X, dtype=float)
@@ -69,20 +65,34 @@ model.add(UpSampling2D((2, 2)))
 model.add(Conv2D(32, (3, 3), activation='relu', padding='same'))
 model.add(Conv2D(2, (3, 3), activation='tanh', padding='same'))
 model.add(UpSampling2D((2, 2)))
-#optimizerAda = optimizers.Adagrad(lr=0.001)
-model.compile(optimizer='adagrad', loss='mse', metrics=['accuracy'])
+optimizerAda = optimizers.Adagrad(lr=0.001)
+model.compile(optimizer=optimizerAda, loss='mse',)
 
 
 #------------------------------------------DATA LOADER--------------------------------------------------------------
 # Image transformer   data augmentation
+# Set up data augmentation
+
+
+# Custom function for adding Gaussian noise
+def gaussian_noise(image):
+    noise = np.random.normal(0, 1, image.shape)
+    noisy_image = image + noise
+    noisy_image = np.clip(noisy_image, 0, 1)
+    return noisy_image
+
 datagen = ImageDataGenerator(
-        
-       
-        shear_range=0.2,
-        zoom_range=0.2,
-        rotation_range=20,
-        horizontal_flip=True, #false
-        vertical_flip=True)#false
+    shear_range=0.2,
+    zoom_range=0.2,
+    rotation_range=20,
+   # brightness_range=[0.8, 1.2],  # Random brightness adjustment
+   # channel_shift_range=20,  # Random channel shifts
+   # preprocessing_function=gaussian_noise  # Custom function for adding Gaussian noise
+)
+
+
+        #horizontal_flip=True, #false
+       # vertical_flip=True)#false
 
 # Generate training data
 batch_size = 10
@@ -97,7 +107,7 @@ def image_a_b_gen(batch_size):
 #-------------------------------------------------------------------------------------------------------------------------
 # Train model      
 tensorboard = TensorBoard(log_dir="output/first_run")
-history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=100, steps_per_epoch=10)
+history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=50, steps_per_epoch=10)
 
 # Save model
 model_json = model.to_json()
@@ -107,23 +117,15 @@ model.save_weights("model.h5")
 
 # Process history
 losses = history.history['loss']
-accuracies = history.history['accuracy']
 
 # Plot learning curves
 plt.figure(figsize=(12, 6))
-plt.subplot(1, 2, 1)
 plt.plot(range(1, len(losses) + 1), losses)
 plt.xlabel('Iteration')
 plt.ylabel('Loss')
 plt.title('Training Loss')
 plt.grid(True)
 
-plt.subplot(1, 2, 2)
-plt.plot(range(1, len(accuracies) + 1), accuracies)
-plt.xlabel('Iteration')
-plt.ylabel('Accuracy')
-plt.title('Training Accuracy')
-plt.grid(True)
 
 plt.tight_layout()
 plt.savefig('starting_point/Beta-version/result/learning_curves.png')

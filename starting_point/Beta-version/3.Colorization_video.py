@@ -31,6 +31,17 @@ import tensorflow as tf
 from skimage import img_as_ubyte
 from PIL import Image
 
+# Verificar la disponibilidad de la GPU
+if tf.config.experimental.list_physical_devices('GPU'):
+    print('Se encontró una GPU')
+else:
+    print('No se encontró una GPU')
+
+# Configurar TensorFlow para utilizar la GPU disponible
+physical_devices = tf.config.experimental.list_physical_devices('GPU')
+if len(physical_devices) > 0:
+    tf.config.experimental.set_memory_growth(physical_devices[0], True)
+    print('---Configuración de GPU completada--')
 
 # Get images
 X = []

@@ -32,3 +32,24 @@ L’objectiu d’aquest treball és utilitzar les tècniques d'aprenentatge prof
 
 Addicionalment, hem decidit estendre el sistema a l’àmbit dels vídeos. Utilitzant les mateixes tècniques de capes convolucionals, recreem el color en imatges amb seqüència de manera realista i d'alta qualitat també. 
 
+
+
+
+## DESENVOLUPAMENT
+
+
+Primerament, explicarem els fitxers que hem utilitzat i la seva finalitat. Hem optat per utilitzar com a base el repositori "starting_point" de GitHub, ja que aquest contenia els fitxers necessaris per començar a plantejar el sistema de "colouring".
+
+Com el projecte "starting_point" estava estructurat en 3 nivells, vam començar pel més senzill i vam anar progressant a mesura que avançàvem.
+
+En primer lloc, ens vam centrar en el directori "alpha", el qual contenia una única imatge que s'utilitzava tant per a l'entrenament com per a les proves de la xarxa neuronal convolucional.
+
+Un cop vam verificar que tot funcionava correctament i que la imatge resultava ser igual que l'original, vam passar a treballar amb el directori "beta", i posteriorment amb el "full-version". Aquest últim era excessivament gran i ocupava més memòria del que teníem disponible, per la qual cosa vam optar per continuar amb el "beta", que treballava amb més imatges en comparació amb l'alpha i també tenia més capes per al procés d'aprenentatge del sistema.
+
+Per a realitzar proves més exhaustives, vam decidir utilitzar altres conjunts de dades que havíem creat nosaltres mateixos. Com a conjunt de dades, hem utilitzat dos directoris: "paisaje_train" per a l'entrenament i "paisajes2" per a les proves. Tots dos directoris contenien paisatges amb prats verds, però amb diferents tonalitats de verd i intensitats, amb l'objectiu de permetre a la xarxa neuronal entrenar-se i oferir-nos representacions de colors més precises.
+
+
+
+
+
+

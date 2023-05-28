@@ -48,6 +48,12 @@ Un cop vam verificar que tot funcionava correctament i que la imatge resultava s
 
 Per a realitzar proves més exhaustives, vam decidir utilitzar altres conjunts de dades que havíem creat nosaltres mateixos. Com a conjunt de dades, hem utilitzat dos directoris: "paisaje_train" per a l'entrenament i "paisajes2" per a les proves. Tots dos directoris contenien paisatges amb prats verds, però amb diferents tonalitats de verd i intensitats, amb l'objectiu de permetre a la xarxa neuronal entrenar-se i oferir-nos representacions de colors més precises.
 
+Hem pres la decisió de no abordar aquesta tasca amb un conjunt de imatges d’entrenament extens, per la principal raó que la nostra xarxa no té una gran dimensionalitat i a més, perquè ens volem enfocar en la qualitat de l’entrenament de la xarxa neuronal convolucional (CNN). 
+
+A més de tot això, quan es treballa amb un conjunt més petit d'imatges, podem garantir amb certesa que la xarxa apren fins al detall de les imatges entrenades i processa amb més precisió, sense caure en el fenòmen del sobreajustament (overfitting). 
+
+
+
 
 
 

@@ -8,7 +8,7 @@ Amal El Hammoudi 1608672@uab.cat
 Xarxes Neuronals i Aprenentatge Profund -Grau de Data Engineering UAB, 2023
 
 
-## INTRODUCCIÓ
+## 1. INTRODUCCIÓ
 
 Amb els avenços tecnològics de deep learning, l'àmbit del processament d'imatges ha avançat de manera significativa, donant pas a reptes com ara afegir color a imatges a escala de grisos.
 
@@ -22,7 +22,7 @@ No obstant això, no és l'únic àmbit en el qual s'aplica aquesta tecnologia, 
 
 
 
-## OBJECTIUS
+## 2. OBJECTIUS
 
 L’objectiu d’aquest treball és utilitzar les tècniques d'aprenentatge profund i capes especialitzades de xarxes neuronals convolucionals (CNN) per desenvolupar un sistema capaç d'afegir color automàticament a imatges en escala de grisos de manera realista i amb qualitat. 
 
@@ -31,12 +31,12 @@ Addicionalment, hem decidit estendre el sistema a l’àmbit dels vídeos. Utili
 
 
 
-## COLOURING D’IMATGES
+## 3. COLOURING D’IMATGES
 
 En aquest apartat explicarem amb més detall el colouring d’imatges, amb les tècniques de aprenentatge profund. 
 
 
-## CONTEXT
+## 3.1 CONTEXT
 
 Primerament, explicarem els fitxers que hem utilitzat i la seva finalitat. Hem optat per utilitzar com a base el repositori "starting_point" de GitHub, ja que aquest contenia els fitxers necessaris per començar a plantejar el sistema de "colouring".
 
@@ -55,9 +55,9 @@ A més de tot això, quan es treballa amb un conjunt més petit d'imatges, podem
 
 
 
-## DESENVOLUPAMENT 
+## 3.2 DESENVOLUPAMENT 
 
-## RESULTATS
+## 3.3 RESULTATS
 
 
 

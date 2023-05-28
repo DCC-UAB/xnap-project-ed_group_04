@@ -158,9 +158,9 @@ with tf.device('/GPU:0'):
     print(model.evaluate(Xtest, Ytest, batch_size=batch_size))
 
     color_me = []
-    for filename in os.listdir('starting_point/Beta-version/Paisajes2/'):
+    for filename in os.listdir('starting_point/Beta-version/test_whales/'):
         if filename.endswith(".jpg") or filename.endswith(".png"):
-            img = Image.open('starting_point/Beta-version/Paisajes2/' + filename)
+            img = Image.open('starting_point/Beta-version/test_whales/' + filename)
             img = img.resize((256, 256))
             color_me.append(img_to_array(img))
     color_me = np.array(color_me, dtype=float)
@@ -178,4 +178,4 @@ for i in range(len(output)):
     cur[:, :, 1:] = output[i]
     cur = lab2rgb(cur)
    
-    imsave("starting_point/Beta-version/result/img_" + str(i) + ".png", cur)
+    imsave("starting_point/Beta-version/result_w/img_" + str(i) + ".png", cur)

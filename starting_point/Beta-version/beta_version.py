@@ -46,9 +46,9 @@ if len(physical_devices) > 0:
 
 # Get images
 X = []
-for filename in os.listdir('starting_point/Beta-version/Paisaje_train/'):
+for filename in os.listdir('starting_point/Beta-version/train_whales/'):
     if filename.endswith(".jpg") or filename.endswith(".png"):
-        img = Image.open('starting_point/Beta-version/Paisaje_train/' + filename)
+        img = Image.open('starting_point/Beta-version/train_whales/' + filename)
         img = img.resize((256, 256))  # Asegurar que todas las imÃ¡genes tengan las mismas dimensiones
         X.append(img_to_array(img))
 X = np.array(X, dtype=float)

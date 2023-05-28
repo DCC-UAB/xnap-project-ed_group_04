@@ -17,6 +17,8 @@ import tensorflow as tf
 from skimage import img_as_ubyte
 import torch
 import keras
+import torch
+import keras
 #from tensorflow.keras.layers import Input, Conv2D, UpSampling2D, MaxPooling2D
 import matplotlib.pyplot as plt
 import os
@@ -169,11 +171,11 @@ with tf.device('/GPU:0'):
     output = model.predict(color_me)
     output = output * 128
 
-    # Output colorizations
-    for i in range(len(output)):
-        cur = np.zeros((256, 256, 3))
-        cur[:, :, 0] = color_me[i][:, :, 0]
-        cur[:, :, 1:] = output[i]
-        cur = lab2rgb(cur)
-    
-        imsave("starting_point/Beta-version/result/img_" + str(i) + ".png", cur)
+# Output colorizations
+for i in range(len(output)):
+    cur = np.zeros((256, 256, 3))
+    cur[:, :, 0] = color_me[i][:, :, 0]
+    cur[:, :, 1:] = output[i]
+    cur = lab2rgb(cur)
+   
+    imsave("starting_point/Beta-version/result/img_" + str(i) + ".png", cur)

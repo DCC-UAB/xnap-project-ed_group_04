@@ -31,12 +31,23 @@ import tensorflow as tf
 from skimage import img_as_ubyte
 from PIL import Image
 
+# Verificar la disponibilidad de la GPU
+if tf.config.experimental.list_physical_devices('GPU'):
+    print('Se encontró una GPU')
+else:
+    print('No se encontró una GPU')
+
+# Configurar TensorFlow para utilizar la GPU disponible
+physical_devices = tf.config.experimental.list_physical_devices('GPU')
+if len(physical_devices) > 0:
+    tf.config.experimental.set_memory_growth(physical_devices[0], True)
+    print('---Configuración de GPU completada--')
 
 # Get images
 X = []
-for filename in os.listdir('starting_point/Beta-version/Paisajes_train/'):
+for filename in os.listdir('starting_point/Beta-version/Paisaje_train/'):
     if filename.endswith(".jpg") or filename.endswith(".png"):
-        img = Image.open('starting_point/Beta-version/Paisajes_train/' + filename)
+        img = Image.open('starting_point/Beta-version/Paisaje_train/' + filename)
         img = img.resize((256, 256))  # Asegurar que todas las imÃ¡genes tengan las mismas dimensiones
         X.append(img_to_array(img))
 X = np.array(X, dtype=float)
@@ -96,7 +107,7 @@ def image_a_b_gen(batch_size):
 #-------------------------------------------------------------------------------------------------------------------------
 # Train model      
 tensorboard = TensorBoard(log_dir="output/first_run")
-history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=5, steps_per_epoch=10)
+history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=3, steps_per_epoch=2)
 
 # Save model
 model_json = model.to_json()
@@ -115,7 +126,7 @@ plt.plot(range(1, len(losses) + 1), losses)
 plt.xlabel('Iteration')
 plt.ylabel('Loss')
 plt.title('Training Loss')
-plt.grid(True)
+plt.grid(True) 
 
 plt.subplot(1, 2, 2)
 plt.plot(range(1, len(accuracies) + 1), accuracies)
@@ -131,28 +142,25 @@ plt.close()
 gif_path = "starting_point/Beta-version/video-paisatge.gif"
 gif_image = Image.open(gif_path)
 
-"""
+#gif_image.show()
+
+frames = []
+try:
+    while True:
+        frames.append(gif_image.copy())
+        gif_image.seek(len(frames))  # Obtén el siguiente fotograma
+except EOFError:
+    pass
+
+print("NUM FRAMES: ", len(frames))
+
+
 color_me = []
-for filename in os.listdir('starting_point/Beta-version/Paisajes2/'):
-    if filename.endswith(".git"):
-        img = Image.open('starting_point/Beta-version/' + filename)
-        img = img.resize((256, 256))
-        color_me.append(img_to_array(img))
+for frame in frames:
+    frame = frame.resize((256, 256))
+    color_me.append(img_to_array(frame))
+
+print(color_me)
 color_me = np.array(color_me, dtype=float)
 color_me = rgb2lab(1.0 / 255 * color_me)[:, :, :, 0]
 color_me = color_me.reshape(color_me.shape + (1,))
-
-# Test model
-output = model.predict(color_me)
-output = output * 128
-
-# Output colorizations
-for i in range(len(output)):
-    cur = np.zeros((256, 256, 3))
-    cur[:, :, 0] = color_me[i][:, :, 0]
-    cur[:, :, 1:] = output[i]
-    cur = lab2rgb(cur)
-   
-    imsave("starting_point/Beta-version/result/img_" + str(i) + ".gif", cur)
-
-"""

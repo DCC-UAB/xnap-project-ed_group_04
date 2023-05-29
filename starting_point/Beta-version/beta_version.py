@@ -46,11 +46,20 @@ if len(physical_devices) > 0:
 
 # Get images
 X = []
-for filename in os.listdir('starting_point/Beta-version/Train_beta/'):
-    if filename.endswith(".jpg") or filename.endswith(".png"):
-        img = Image.open('starting_point/Beta-version/Train_beta/' + filename)
+for filename in os.listdir('starting_point/Beta-version/train-strawberry/'):
+    if filename.endswith(".jpg") or filename.endswith(".png") or filename.endswith(".jpeg"):
+        img = Image.open('starting_point/Beta-version/train-strawberry/' + filename)
         img = img.resize((256, 256))  # Asegurar que todas las imÃ¡genes tengan las mismas dimensiones
         X.append(img_to_array(img))
+print("LLISTA-------------------", len(X))
+
+# Verificar que todas las imágenes tengan la misma forma
+shapes = [img.shape for img in X]
+unique_shapes = set(shapes)
+print(unique_shapes)
+if len(unique_shapes) > 1:
+    print("Las imágenes no tienen la misma forma después de redimensionar.")
+
 X = np.array(X, dtype=float)
 
 
@@ -114,7 +123,7 @@ with tf.device('/GPU:0'):
         # vertical_flip=True)#false
 
     # Generate training data
-    batch_size = 15 #ho he canviat
+    batch_size = 30 #ho he canviat
     def image_a_b_gen(batch_size):
         for batch in datagen.flow(Xtrain, batch_size=batch_size):  #entrena per bloc
             lab_batch = rgb2lab(batch)
@@ -126,7 +135,7 @@ with tf.device('/GPU:0'):
     #-------------------------------------------------------------------------------------------------------------------------
     # Train model      
     tensorboard = TensorBoard(log_dir="output/first_run")
-    history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=350, steps_per_epoch=50)
+    history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=300, steps_per_epoch=50)
 
     # Save model
     model_json = model.to_json()
@@ -158,11 +167,20 @@ with tf.device('/GPU:0'):
     print(model.evaluate(Xtest, Ytest, batch_size=batch_size))
 
     color_me = []
-    for filename in os.listdir('starting_point/Beta-version/Val_beta/'):
+    for filename in os.listdir('starting_point/Beta-version/strawberry-test/'):
         if filename.endswith(".jpg") or filename.endswith(".png"):
-            img = Image.open('starting_point/Beta-version/Val_beta/' + filename)
+            img = Image.open('starting_point/Beta-version/strawberry-test/' + filename)
+
             img = img.resize((256, 256))
             color_me.append(img_to_array(img))
+
+    # Verificar las formas de los elementos en la lista
+    for i, img_array in enumerate(color_me):
+        print(f"Forma del elemento {i}: {img_array.shape}")
+
+    color_me[2] = np.delete(color_me[2], 3, axis=2)
+    print(f"Forma corregida del elemento 2: {color_me[2].shape}")
+
     color_me = np.array(color_me, dtype=float)
     color_me = rgb2lab(1.0 / 255 * color_me)[:, :, :, 0]
     color_me = color_me.reshape(color_me.shape + (1,))
@@ -178,4 +196,4 @@ for i in range(len(output)):
     cur[:, :, 1:] = output[i]
     cur = lab2rgb(cur)
    
-    imsave("starting_point/Beta-version/result_/img_" + str(i) + ".png", cur)
+    imsave("starting_point/Beta-version/result_w/img_" + str(i) + ".png", cur)

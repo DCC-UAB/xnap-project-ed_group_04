@@ -47,7 +47,7 @@ if len(physical_devices) > 0:
 # Get images
 X = []
 for filename in os.listdir('starting_point/Beta-version/Train_beta/'):
-    if filename.endswith(".jpg") or filename.endswith(".png"):
+    if filename.endswith(".jpg") or filename.endswith(".jpeg"):
         img = Image.open('starting_point/Beta-version/Train_beta/' + filename)
         img = img.resize((256, 256))  # Asegurar que todas las imÃ¡genes tengan las mismas dimensiones
         X.append(img_to_array(img))
@@ -114,7 +114,7 @@ with tf.device('/GPU:0'):
         # vertical_flip=True)#false
 
     # Generate training data
-    batch_size = 15 #ho he canviat
+    batch_size = 20 #ho he canviat
     def image_a_b_gen(batch_size):
         for batch in datagen.flow(Xtrain, batch_size=batch_size):  #entrena per bloc
             lab_batch = rgb2lab(batch)
@@ -159,7 +159,7 @@ with tf.device('/GPU:0'):
 
     color_me = []
     for filename in os.listdir('starting_point/Beta-version/Val_beta/'):
-        if filename.endswith(".jpg") or filename.endswith(".png"):
+        if filename.endswith(".jpg") or filename.endswith(".jpeg"):
             img = Image.open('starting_point/Beta-version/Val_beta/' + filename)
             img = img.resize((256, 256))
             color_me.append(img_to_array(img))
@@ -178,4 +178,4 @@ for i in range(len(output)):
     cur[:, :, 1:] = output[i]
     cur = lab2rgb(cur)
    
-    imsave("starting_point/Beta-version/result_/img_" + str(i) + ".png", cur)
+    imsave("starting_point/Beta-version/result/img_" + str(i) + ".png", cur)

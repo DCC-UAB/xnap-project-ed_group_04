@@ -46,9 +46,9 @@ if len(physical_devices) > 0:
 
 # Get images
 X = []
-for filename in os.listdir('starting_point/Beta-version/Train_beta/'):
+for filename in os.listdir('starting_point/Beta-version/Paisaje_train/'):
     if filename.endswith(".jpg") or filename.endswith(".jpeg"):
-        img = Image.open('starting_point/Beta-version/Train_beta/' + filename)
+        img = Image.open('starting_point/Beta-version/Paisaje_train/' + filename)
         img = img.resize((256, 256))  # Asegurar que todas las imÃ¡genes tengan las mismas dimensiones
         if img.mode == 'L':
             img = np.expand_dims(img, axis=2)  # Agregar una dimensión de canal
@@ -96,12 +96,6 @@ with tf.device('/GPU:0'):
     # Set up data augmentation
 
 
-    # Custom function for adding Gaussian noise
-    def gaussian_noise(image):
-        noise = np.random.normal(0, 1, image.shape)
-        noisy_image = image + noise
-        noisy_image = np.clip(noisy_image, 0, 1)
-        return noisy_image
 
     datagen = ImageDataGenerator(
         shear_range=0.2,
@@ -117,7 +111,7 @@ with tf.device('/GPU:0'):
         # vertical_flip=True)#false
 
     # Generate training data
-    batch_size = 20 #ho he canviat
+    batch_size = 15 #ho he canviat
     def image_a_b_gen(batch_size):
         for batch in datagen.flow(Xtrain, batch_size=batch_size):  #entrena per bloc
             lab_batch = rgb2lab(batch)
@@ -129,7 +123,7 @@ with tf.device('/GPU:0'):
     #-------------------------------------------------------------------------------------------------------------------------
     # Train model      
     tensorboard = TensorBoard(log_dir="output/first_run")
-    history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=2, steps_per_epoch=20)
+    history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=350, steps_per_epoch=50)
 
     # Save model
     model_json = model.to_json()
@@ -161,9 +155,9 @@ with tf.device('/GPU:0'):
     print(model.evaluate(Xtest, Ytest, batch_size=batch_size))
 
     color_me = []
-    for filename in os.listdir('starting_point/Beta-version/Val_beta/'):
+    for filename in os.listdir('starting_point/Beta-version/Paisajes2/'):
         if filename.endswith(".jpg") or filename.endswith(".jpeg"):
-            img = Image.open('starting_point/Beta-version/Val_beta/' + filename)
+            img = Image.open('starting_point/Beta-version/Paisajes2/' + filename)
             img = img.resize((256, 256))
             if img.mode == 'L':
                 img = np.expand_dims(img, axis=2)  # Agregar una dimensión de canal
@@ -184,4 +178,4 @@ for i in range(len(output)):
     cur[:, :, 1:] = output[i]
     cur = lab2rgb(cur)
    
-    imsave("starting_point/Beta-version/result/img_" + str(i) + ".png", cur)
+    imsave("starting_point/Beta-version/result_prados/img_" + str(i) + ".png", cur)

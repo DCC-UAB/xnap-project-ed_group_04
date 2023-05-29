@@ -46,10 +46,13 @@ if len(physical_devices) > 0:
 
 # Get images
 X = []
-for filename in os.listdir('starting_point/Beta-version/Train_beta/'):
-    if filename.endswith(".jpg") or filename.endswith(".png"):
-        img = Image.open('starting_point/Beta-version/Train_beta/' + filename)
+for filename in os.listdir('starting_point/Beta-version/train_whales/'):
+    if filename.endswith(".jpg") or filename.endswith(".jpeg"):
+        img = Image.open('starting_point/Beta-version/train_whales/' + filename)
         img = img.resize((256, 256))  # Asegurar que todas las imÃ¡genes tengan las mismas dimensiones
+        if img.mode == 'L':
+            img = np.expand_dims(img, axis=2)  # Agregar una dimensión de canal
+            img = np.repeat(img, 3, axis=2)  
         X.append(img_to_array(img))
 X = np.array(X, dtype=float)
 
@@ -114,7 +117,7 @@ with tf.device('/GPU:0'):
         # vertical_flip=True)#false
 
     # Generate training data
-    batch_size = 15 #ho he canviat
+    batch_size = 100 #ho he canviat
     def image_a_b_gen(batch_size):
         for batch in datagen.flow(Xtrain, batch_size=batch_size):  #entrena per bloc
             lab_batch = rgb2lab(batch)
@@ -126,7 +129,7 @@ with tf.device('/GPU:0'):
     #-------------------------------------------------------------------------------------------------------------------------
     # Train model      
     tensorboard = TensorBoard(log_dir="output/first_run")
-    history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=350, steps_per_epoch=50)
+    history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=2, steps_per_epoch=20)
 
     # Save model
     model_json = model.to_json()
@@ -158,10 +161,13 @@ with tf.device('/GPU:0'):
     print(model.evaluate(Xtest, Ytest, batch_size=batch_size))
 
     color_me = []
-    for filename in os.listdir('starting_point/Beta-version/Val_beta/'):
-        if filename.endswith(".jpg") or filename.endswith(".png"):
-            img = Image.open('starting_point/Beta-version/Val_beta/' + filename)
+    for filename in os.listdir('starting_point/Beta-version/test_whales/'):
+        if filename.endswith(".jpg") or filename.endswith(".jpeg"):
+            img = Image.open('starting_point/Beta-version/test_whales/' + filename)
             img = img.resize((256, 256))
+            if img.mode == 'L':
+                img = np.expand_dims(img, axis=2)  # Agregar una dimensión de canal
+                img = np.repeat(img, 3, axis=2)  
             color_me.append(img_to_array(img))
     color_me = np.array(color_me, dtype=float)
     color_me = rgb2lab(1.0 / 255 * color_me)[:, :, :, 0]
@@ -178,4 +184,4 @@ for i in range(len(output)):
     cur[:, :, 1:] = output[i]
     cur = lab2rgb(cur)
    
-    imsave("starting_point/Beta-version/result_/img_" + str(i) + ".png", cur)
+    imsave("starting_point/Beta-version/result_w/img_" + str(i) + ".png", cur)

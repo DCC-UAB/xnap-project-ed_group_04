@@ -23,9 +23,9 @@ import numpy as np
 from keras.preprocessing.image import ImageDataGenerator
 from skimage.color import rgb2lab, lab2rgb
 from skimage.io import imsave
-from tensorflow.keras.layers import BatchNormalization, Conv2D, InputLayer, UpSampling2D
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.callbacks import TensorBoard
+from keras.layers import BatchNormalization, Conv2D, InputLayer, UpSampling2D
+from keras.models import Sequential
+from keras.callbacks import TensorBoard
 from tensorflow.keras.preprocessing.image import img_to_array, load_img
 import tensorflow as tf
 from skimage import img_as_ubyte
@@ -45,11 +45,14 @@ if len(physical_devices) > 0:
 
 # Get images
 X = []
-for filename in os.listdir('starting_point/Beta-version/Paisaje_train/'):
-    if filename.endswith(".jpg") or filename.endswith(".png"):
-        img = Image.open('starting_point/Beta-version/Paisaje_train/' + filename)
+for filename in os.listdir('starting_point/Beta-version/Paisatges/'):
+    if filename.endswith(".jpg") or filename.endswith(".png") or  filename.endswith(".jpeg"):
+        img = Image.open('starting_point/Beta-version/Paisatges/' + filename)
+        #print("IMATGE:--------------------", img)
         img = img.resize((256, 256))  # Asegurar que todas las imÃ¡genes tengan las mismas dimensiones
         X.append(img_to_array(img))
+
+
 X = np.array(X, dtype=float)
 
 
@@ -80,7 +83,7 @@ model.add(UpSampling2D((2, 2)))
 model.add(Conv2D(32, (3, 3), activation='relu', padding='same'))
 model.add(Conv2D(2, (3, 3), activation='tanh', padding='same'))
 model.add(UpSampling2D((2, 2)))
-model.compile(optimizer='adagrad', loss='mse', metrics=['accuracy'])
+model.compile(optimizer='adagrad', loss='mse')
 
 
 #------------------------------------------DATA LOADER--------------------------------------------------------------
@@ -91,8 +94,8 @@ datagen = ImageDataGenerator(
         shear_range=0.2,
         zoom_range=0.2,
         rotation_range=20,
-        horizontal_flip=True, 
-        vertical_flip=True)
+        horizontal_flip=False, 
+        vertical_flip=False)
 
 # Generate training data
 batch_size = 10
@@ -107,7 +110,7 @@ def image_a_b_gen(batch_size):
 #-------------------------------------------------------------------------------------------------------------------------
 # Train model      
 tensorboard = TensorBoard(log_dir="output/first_run")
-history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=3, steps_per_epoch=2)
+history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=50, steps_per_epoch=40)
 
 # Save model
 model_json = model.to_json()
@@ -117,7 +120,7 @@ model.save_weights("model.h5")
 
 # Process history
 losses = history.history['loss']
-accuracies = history.history['accuracy']
+
 
 # Plot learning curves
 plt.figure(figsize=(12, 6))
@@ -128,12 +131,7 @@ plt.ylabel('Loss')
 plt.title('Training Loss')
 plt.grid(True) 
 
-plt.subplot(1, 2, 2)
-plt.plot(range(1, len(accuracies) + 1), accuracies)
-plt.xlabel('Iteration')
-plt.ylabel('Accuracy')
-plt.title('Training Accuracy')
-plt.grid(True)
+
 
 plt.tight_layout()
 plt.savefig('starting_point/Beta-version/result/learning_curves.png')
@@ -152,15 +150,45 @@ try:
 except EOFError:
     pass
 
-print("NUM FRAMES: ", len(frames))
+print("------------------NUM FRAME--------------------------------------------: ", len(frames))
 
 
 color_me = []
 for frame in frames:
     frame = frame.resize((256, 256))
+    if len(color_me)==0:
+        frame = np.expand_dims(frame, axis=2)  # Agregar una dimensión de canal
+        frame = np.repeat(frame, 3, axis=2)  
     color_me.append(img_to_array(frame))
 
-print(color_me)
 color_me = np.array(color_me, dtype=float)
 color_me = rgb2lab(1.0 / 255 * color_me)[:, :, :, 0]
 color_me = color_me.reshape(color_me.shape + (1,))
+output = model.predict(color_me)
+output = output * 128
+
+# Output colorizations
+for i in range(len(output)):
+    cur = np.zeros((256, 256, 3))
+    cur[:, :, 0] = color_me[i][:, :, 0]
+    cur[:, :, 1:] = output[i]
+    cur = lab2rgb(cur)
+   
+    imsave("starting_point/Beta-version/result_gif/img_" + str(i) + ".png", cur)
+
+import imageio
+
+output_images = []
+
+for i in range(len(output)):
+    cur = np.zeros((256, 256, 3))
+    cur[:, :, 0] = color_me[i][:, :, 0]
+    cur[:, :, 1:] = output[i]
+    cur = lab2rgb(cur)
+    cur = img_as_ubyte(cur)  # Convertir a formato de 8 bits (0-255)
+    output_images.append(cur)
+
+output_gif_path = 'output/result.gif'
+imageio.mimsave(output_gif_path, output_images, duration=0.9)  # Guardar como archivo GIF
+
+print("Archivo GIF guardado en:", output_gif_path)

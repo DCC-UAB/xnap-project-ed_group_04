@@ -132,7 +132,7 @@ with tf.device('/GPU:0'):
     #-------------------------------------------------------------------------------------------------------------------------
     # Train model      
     tensorboard = TensorBoard(log_dir="output/first_run")
-    history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=250, steps_per_epoch=50)
+    history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=4, steps_per_epoch=1)
 
     # Save model
     model_json = model.to_json()
@@ -195,4 +195,4 @@ for i in range(len(output)):
     cur[:, :, 1:] = output[i]
     cur = lab2rgb(cur)
    
-    imsave("starting_point/Beta-version/result-strawberry/img_" + str(i) + ".png", cur)
+    imsave("starting_point/Beta-version/result_w/img_" + str(i) + ".png", cur)

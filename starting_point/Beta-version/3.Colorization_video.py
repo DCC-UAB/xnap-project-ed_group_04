@@ -100,7 +100,7 @@ datagen = ImageDataGenerator(
         vertical_flip=False)
 
 # Generate training data
-batch_size = 15
+batch_size = 17
 def image_a_b_gen(batch_size):
     for batch in datagen.flow(Xtrain, batch_size=batch_size):  #entrena per bloc
         lab_batch = rgb2lab(batch)
@@ -111,7 +111,7 @@ def image_a_b_gen(batch_size):
 #-------------------------------------------------------------------------------------------------------------------------
 # Train model      
 tensorboard = TensorBoard(log_dir="output/first_run")
-history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=100, steps_per_epoch=20)
+history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=2, steps_per_epoch=1)
 
 # Save model
 model_json = model.to_json()
@@ -134,7 +134,7 @@ plt.grid(True)
 
 
 plt.tight_layout()
-plt.savefig('starting_point/Beta-version/learning_curves_gif.png')
+plt.savefig('starting_point/Beta-version/result/learning_curves.png')
 plt.close()
 
 gif_path = "starting_point/Beta-version/prado.gif"
@@ -166,8 +166,14 @@ color_me = color_me.reshape(color_me.shape + (1,))
 output = model.predict(color_me)
 output = output * 128
 
+# Output colorizations
+for i in range(len(output)):
+    cur = np.zeros((256, 256, 3))
+    cur[:, :, 0] = color_me[i][:, :, 0]
+    cur[:, :, 1:] = output[i]
+    cur = lab2rgb(cur)
    
-    
+    imsave("starting_point/Beta-version/result_gif/img_" + str(i) + ".png", cur)
 
 import imageio
 
@@ -178,12 +184,10 @@ for i in range(len(output)):
     cur[:, :, 0] = color_me[i][:, :, 0]
     cur[:, :, 1:] = output[i]
     cur = lab2rgb(cur)
-
-    imsave("starting_point/Beta-version/result_gif/img_" + str(i) + ".png", cur)
     cur = img_as_ubyte(cur)  # Convertir a formato de 8 bits (0-255)
     output_images.append(cur)
 
-output_gif_path = 'output/result-gif2.gif'
-imageio.mimsave(output_gif_path, output_images, duration=0.4)  # Guardar como archivo GIF
+output_gif_path = 'output/cespedd.gif'
+imageio.mimsave(output_gif_path, output_images, duration=0.5)  # Guardar como archivo GIF
 
 print("Archivo GIF guardado en:", output_gif_path)

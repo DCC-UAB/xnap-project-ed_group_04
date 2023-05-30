@@ -30,6 +30,7 @@ from tensorflow.keras.preprocessing.image import img_to_array, load_img
 import tensorflow as tf
 from skimage import img_as_ubyte
 from PIL import Image
+from keras import optimizers
 
 # Verificar la disponibilidad de la GPU
 if tf.config.experimental.list_physical_devices('GPU'):
@@ -83,7 +84,8 @@ model.add(UpSampling2D((2, 2)))
 model.add(Conv2D(32, (3, 3), activation='relu', padding='same'))
 model.add(Conv2D(2, (3, 3), activation='tanh', padding='same'))
 model.add(UpSampling2D((2, 2)))
-model.compile(optimizer='adagrad', loss='mse')
+optimizerAda = optimizers.Adagrad(lr=0.001)
+model.compile(optimizer=optimizerAda, loss='mse')
 
 
 #------------------------------------------DATA LOADER--------------------------------------------------------------
@@ -98,7 +100,7 @@ datagen = ImageDataGenerator(
         vertical_flip=False)
 
 # Generate training data
-batch_size = 10
+batch_size = 17
 def image_a_b_gen(batch_size):
     for batch in datagen.flow(Xtrain, batch_size=batch_size):  #entrena per bloc
         lab_batch = rgb2lab(batch)
@@ -106,11 +108,10 @@ def image_a_b_gen(batch_size):
         Y_batch = lab_batch[:, :, :, 1:] / 128
         yield (X_batch.reshape(X_batch.shape + (1,)), Y_batch)  #retorna cada bloc de dades de train
 
-
 #-------------------------------------------------------------------------------------------------------------------------
 # Train model      
 tensorboard = TensorBoard(log_dir="output/first_run")
-history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=3, steps_per_epoch=2)
+history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=350, steps_per_epoch=50)
 
 # Save model
 model_json = model.to_json()
@@ -120,7 +121,6 @@ model.save_weights("model.h5")
 
 # Process history
 losses = history.history['loss']
-
 
 # Plot learning curves
 plt.figure(figsize=(12, 6))
@@ -150,8 +150,7 @@ try:
 except EOFError:
     pass
 
-print("------------------NUM FRAME--------------------------------------------: ", len(frames))
-
+print("------------------NUM FRAME----------------------: ", len(frames))
 
 color_me = []
 for frame in frames:
@@ -164,3 +163,31 @@ for frame in frames:
 color_me = np.array(color_me, dtype=float)
 color_me = rgb2lab(1.0 / 255 * color_me)[:, :, :, 0]
 color_me = color_me.reshape(color_me.shape + (1,))
+output = model.predict(color_me)
+output = output * 128
+
+# Output colorizations
+for i in range(len(output)):
+    cur = np.zeros((256, 256, 3))
+    cur[:, :, 0] = color_me[i][:, :, 0]
+    cur[:, :, 1:] = output[i]
+    cur = lab2rgb(cur)
+   
+    imsave("starting_point/Beta-version/result_gif/img_" + str(i) + ".png", cur)
+
+import imageio
+
+output_images = []
+
+for i in range(len(output)):
+    cur = np.zeros((256, 256, 3))
+    cur[:, :, 0] = color_me[i][:, :, 0]
+    cur[:, :, 1:] = output[i]
+    cur = lab2rgb(cur)
+    cur = img_as_ubyte(cur)  # Convertir a formato de 8 bits (0-255)
+    output_images.append(cur)
+
+output_gif_path = 'output/result.gif'
+imageio.mimsave(output_gif_path, output_images, duration=0.5)  # Guardar como archivo GIF
+
+print("Archivo GIF guardado en:", output_gif_path)

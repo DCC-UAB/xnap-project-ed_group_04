@@ -46,9 +46,9 @@ if len(physical_devices) > 0:
 
 # Get images
 X = []
-for filename in os.listdir('starting_point/Beta-version/Train_beta/'):
-    if filename.endswith(".jpg") or filename.endswith(".png"):
-        img = Image.open('starting_point/Beta-version/Train_beta/' + filename)
+for filename in os.listdir('starting_point/Beta-version/train-strawberry/'):
+    if filename.endswith(".jpg") or filename.endswith(".png") or  filename.endswith(".jpeg"):
+        img = Image.open('starting_point/Beta-version/train-strawberry/' + filename)
         img = img.resize((256, 256))  # Asegurar que todas las imÃ¡genes tengan las mismas dimensiones
         if img.mode == 'L':
             img = np.expand_dims(img, axis=2)  # Agregar una dimensión de canal
@@ -97,7 +97,7 @@ with tf.device('/GPU:0'):
     model.add(Conv2D(2, (3, 3), activation='tanh', padding='same'))
     model.add(UpSampling2D((2, 2)))
     optimizerAda = optimizers.Adagrad(lr=0.001)
-    model.compile(optimizer=optimizerAda, loss='mse',)
+    model.compile(optimizer=optimizerAda, loss='mse')
 
 
     #------------------------------------------DATA LOADER--------------------------------------------------------------
@@ -132,7 +132,7 @@ with tf.device('/GPU:0'):
     #-------------------------------------------------------------------------------------------------------------------------
     # Train model      
     tensorboard = TensorBoard(log_dir="output/first_run")
-    history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=300, steps_per_epoch=50)
+    history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=100, steps_per_epoch=50)
 
     # Save model
     model_json = model.to_json()
@@ -164,9 +164,9 @@ with tf.device('/GPU:0'):
     print(model.evaluate(Xtest, Ytest, batch_size=batch_size))
 
     color_me = []
-    for filename in os.listdir('starting_point/Beta-version/Val_beta/'):
-        if filename.endswith(".jpg") or filename.endswith(".png"):
-            img = Image.open('starting_point/Beta-version/Val_beta/' + filename)
+    for filename in os.listdir('starting_point/Beta-version/strawberry-test/'):
+        if filename.endswith(".jpg") or filename.endswith(".png") or  filename.endswith(".jpeg"):
+            img = Image.open('starting_point/Beta-version/strawberry-test/' + filename)
             img = img.resize((256, 256))
             if img.mode == 'L':
                 img = np.expand_dims(img, axis=2)  # Agregar una dimensión de canal
@@ -195,4 +195,4 @@ for i in range(len(output)):
     cur[:, :, 1:] = output[i]
     cur = lab2rgb(cur)
    
-    imsave("starting_point/Beta-version/result_/img_" + str(i) + ".png", cur)
+    imsave("starting_point/Beta-version/result_w/img_" + str(i) + ".png", cur)

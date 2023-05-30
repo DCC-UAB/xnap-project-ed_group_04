@@ -46,9 +46,9 @@ if len(physical_devices) > 0:
 
 # Get images
 X = []
-for filename in os.listdir('starting_point/Beta-version/train_whales/'):
+for filename in os.listdir('starting_point/Beta-version/banana-train/'):
     if filename.endswith(".jpg") or filename.endswith(".jpeg"):
-        img = Image.open('starting_point/Beta-version/train_whales/' + filename)
+        img = Image.open('starting_point/Beta-version/banana-train/' + filename)
         img = img.resize((256, 256))  # Asegurar que todas las imÃ¡genes tengan las mismas dimensiones
         if img.mode == 'L':
             img = np.expand_dims(img, axis=2)  # Agregar una dimensión de canal
@@ -123,7 +123,7 @@ with tf.device('/GPU:0'):
     #-------------------------------------------------------------------------------------------------------------------------
     # Train model      
     tensorboard = TensorBoard(log_dir="output/first_run")
-    history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=50, steps_per_epoch=20)
+    history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=350, steps_per_epoch=50)
 
     # Save model
     model_json = model.to_json()
@@ -155,9 +155,9 @@ with tf.device('/GPU:0'):
     print(model.evaluate(Xtest, Ytest, batch_size=batch_size))
 
     color_me = []
-    for filename in os.listdir('starting_point/Beta-version/test_whales/'):
+    for filename in os.listdir('starting_point/Beta-version/banana-test/'):
         if filename.endswith(".jpg") or filename.endswith(".jpeg"):
-            img = Image.open('starting_point/Beta-version/test_whales/' + filename)
+            img = Image.open('starting_point/Beta-version/banana-test/' + filename)
             img = img.resize((256, 256))
             if img.mode == 'L':
                 img = np.expand_dims(img, axis=2)  # Agregar una dimensión de canal
@@ -178,4 +178,4 @@ for i in range(len(output)):
     cur[:, :, 1:] = output[i]
     cur = lab2rgb(cur)
    
-    imsave("starting_point/Beta-version/result_w/img_" + str(i) + ".png", cur)
+    imsave("starting_point/Beta-version/result_banana/img_" + str(i) + ".png", cur)

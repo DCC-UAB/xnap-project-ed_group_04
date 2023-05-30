@@ -46,9 +46,9 @@ if len(physical_devices) > 0:
 
 # Get images
 X = []
-for filename in os.listdir('starting_point/Beta-version/Paisatges/'):
+for filename in os.listdir('starting_point/Beta-version/Paisaje_train/'):
     if filename.endswith(".jpg") or filename.endswith(".png") or  filename.endswith(".jpeg"):
-        img = Image.open('starting_point/Beta-version/Paisatges/' + filename)
+        img = Image.open('starting_point/Beta-version/Paisaje_train/' + filename)
         #print("IMATGE:--------------------", img)
         img = img.resize((256, 256))  # Asegurar que todas las imÃ¡genes tengan las mismas dimensiones
         X.append(img_to_array(img))
@@ -100,7 +100,7 @@ datagen = ImageDataGenerator(
         vertical_flip=False)
 
 # Generate training data
-batch_size = 17
+batch_size = 15
 def image_a_b_gen(batch_size):
     for batch in datagen.flow(Xtrain, batch_size=batch_size):  #entrena per bloc
         lab_batch = rgb2lab(batch)
@@ -111,7 +111,7 @@ def image_a_b_gen(batch_size):
 #-------------------------------------------------------------------------------------------------------------------------
 # Train model      
 tensorboard = TensorBoard(log_dir="output/first_run")
-history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=350, steps_per_epoch=50)
+history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=100, steps_per_epoch=20)
 
 # Save model
 model_json = model.to_json()
@@ -134,10 +134,10 @@ plt.grid(True)
 
 
 plt.tight_layout()
-plt.savefig('starting_point/Beta-version/result/learning_curves.png')
+plt.savefig('starting_point/Beta-version/learning_curves_gif.png')
 plt.close()
 
-gif_path = "starting_point/Beta-version/video-paisatge.gif"
+gif_path = "starting_point/Beta-version/prado.gif"
 gif_image = Image.open(gif_path)
 
 #gif_image.show()
@@ -187,7 +187,7 @@ for i in range(len(output)):
     cur = img_as_ubyte(cur)  # Convertir a formato de 8 bits (0-255)
     output_images.append(cur)
 
-output_gif_path = 'output/result.gif'
-imageio.mimsave(output_gif_path, output_images, duration=0.5)  # Guardar como archivo GIF
+output_gif_path = 'output/result-gif2.gif'
+imageio.mimsave(output_gif_path, output_images, duration=0.4)  # Guardar como archivo GIF
 
 print("Archivo GIF guardado en:", output_gif_path)

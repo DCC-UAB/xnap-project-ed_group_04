@@ -132,7 +132,7 @@ with tf.device('/GPU:0'):
     #-------------------------------------------------------------------------------------------------------------------------
     # Train model      
     tensorboard = TensorBoard(log_dir="output/first_run")
-    history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=100, steps_per_epoch=50)
+    history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=250, steps_per_epoch=50)
 
     # Save model
     model_json = model.to_json()
@@ -153,7 +153,7 @@ with tf.device('/GPU:0'):
 
 
     plt.tight_layout()
-    plt.savefig('starting_point/Beta-version/result/learning_curves.png')
+    plt.savefig('starting_point/Beta-version/result/learning_curves-strawberry.png')
     plt.close()
 
     # Test images
@@ -165,7 +165,7 @@ with tf.device('/GPU:0'):
 
     color_me = []
     for filename in os.listdir('starting_point/Beta-version/strawberry-test/'):
-        if filename.endswith(".jpg") or filename.endswith(".png") or  filename.endswith(".jpeg"):
+        if filename.endswith(".jpg") or filename.endswith(".jpeg"):
             img = Image.open('starting_point/Beta-version/strawberry-test/' + filename)
             img = img.resize((256, 256))
             if img.mode == 'L':
@@ -177,8 +177,8 @@ with tf.device('/GPU:0'):
     for i, img_array in enumerate(color_me):
         print(f"Forma del elemento {i}: {img_array.shape}")
 
-    color_me[2] = np.delete(color_me[2], 3, axis=2)
-    print(f"Forma corregida del elemento 2: {color_me[2].shape}")
+    #color_me[2] = np.delete(color_me[2], 3, axis=2)
+    #print(f"Forma corregida del elemento 2: {color_me[2].shape}")
 
     color_me = np.array(color_me, dtype=float)
     color_me = rgb2lab(1.0 / 255 * color_me)[:, :, :, 0]
@@ -195,4 +195,4 @@ for i in range(len(output)):
     cur[:, :, 1:] = output[i]
     cur = lab2rgb(cur)
    
-    imsave("starting_point/Beta-version/result_w/img_" + str(i) + ".png", cur)
+    imsave("starting_point/Beta-version/result-strawberry/img_" + str(i) + ".png", cur)

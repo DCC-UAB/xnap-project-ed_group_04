@@ -134,7 +134,7 @@ plt.grid(True)
 
 
 plt.tight_layout()
-plt.savefig('starting_point/Beta-version/result/learning_curves.png')
+plt.savefig('starting_point/Beta-version/learning_curves_gif.png')
 plt.close()
 
 gif_path = "starting_point/Beta-version/video-paisatge.gif"

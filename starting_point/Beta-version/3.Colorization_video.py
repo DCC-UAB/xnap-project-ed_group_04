@@ -30,6 +30,7 @@ from tensorflow.keras.preprocessing.image import img_to_array, load_img
 import tensorflow as tf
 from skimage import img_as_ubyte
 from PIL import Image
+from keras import optimizers
 
 # Verificar la disponibilidad de la GPU
 if tf.config.experimental.list_physical_devices('GPU'):
@@ -45,9 +46,9 @@ if len(physical_devices) > 0:
 
 # Get images
 X = []
-for filename in os.listdir('starting_point/Beta-version/Paisatges/'):
+for filename in os.listdir('starting_point/Beta-version/Paisaje_train/'):
     if filename.endswith(".jpg") or filename.endswith(".png") or  filename.endswith(".jpeg"):
-        img = Image.open('starting_point/Beta-version/Paisatges/' + filename)
+        img = Image.open('starting_point/Beta-version/Paisaje_train/' + filename)
         #print("IMATGE:--------------------", img)
         img = img.resize((256, 256))  # Asegurar que todas las imÃ¡genes tengan las mismas dimensiones
         X.append(img_to_array(img))
@@ -83,7 +84,8 @@ model.add(UpSampling2D((2, 2)))
 model.add(Conv2D(32, (3, 3), activation='relu', padding='same'))
 model.add(Conv2D(2, (3, 3), activation='tanh', padding='same'))
 model.add(UpSampling2D((2, 2)))
-model.compile(optimizer='adagrad', loss='mse')
+optimizerAda = optimizers.Adagrad(lr=0.001)
+model.compile(optimizer=optimizerAda, loss='mse')
 
 
 #------------------------------------------DATA LOADER--------------------------------------------------------------
@@ -98,7 +100,7 @@ datagen = ImageDataGenerator(
         vertical_flip=False)
 
 # Generate training data
-batch_size = 10
+batch_size = 17
 def image_a_b_gen(batch_size):
     for batch in datagen.flow(Xtrain, batch_size=batch_size):  #entrena per bloc
         lab_batch = rgb2lab(batch)
@@ -106,11 +108,10 @@ def image_a_b_gen(batch_size):
         Y_batch = lab_batch[:, :, :, 1:] / 128
         yield (X_batch.reshape(X_batch.shape + (1,)), Y_batch)  #retorna cada bloc de dades de train
 
-
 #-------------------------------------------------------------------------------------------------------------------------
 # Train model      
 tensorboard = TensorBoard(log_dir="output/first_run")
-history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=50, steps_per_epoch=40)
+history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=2, steps_per_epoch=1)
 
 # Save model
 model_json = model.to_json()
@@ -120,7 +121,6 @@ model.save_weights("model.h5")
 
 # Process history
 losses = history.history['loss']
-
 
 # Plot learning curves
 plt.figure(figsize=(12, 6))
@@ -134,10 +134,10 @@ plt.grid(True)
 
 
 plt.tight_layout()
-plt.savefig('starting_point/Beta-version/learning_curves_gif.png')
+plt.savefig('starting_point/Beta-version/result/learning_curves.png')
 plt.close()
 
-gif_path = "starting_point/Beta-version/video-paisatge.gif"
+gif_path = "starting_point/Beta-version/prado.gif"
 gif_image = Image.open(gif_path)
 
 #gif_image.show()
@@ -150,8 +150,7 @@ try:
 except EOFError:
     pass
 
-print("------------------NUM FRAME--------------------------------------------: ", len(frames))
-
+print("------------------NUM FRAME----------------------: ", len(frames))
 
 color_me = []
 for frame in frames:
@@ -167,8 +166,14 @@ color_me = color_me.reshape(color_me.shape + (1,))
 output = model.predict(color_me)
 output = output * 128
 
+# Output colorizations
+for i in range(len(output)):
+    cur = np.zeros((256, 256, 3))
+    cur[:, :, 0] = color_me[i][:, :, 0]
+    cur[:, :, 1:] = output[i]
+    cur = lab2rgb(cur)
    
-    
+    imsave("starting_point/Beta-version/result_gif/img_" + str(i) + ".png", cur)
 
 import imageio
 
@@ -179,12 +184,10 @@ for i in range(len(output)):
     cur[:, :, 0] = color_me[i][:, :, 0]
     cur[:, :, 1:] = output[i]
     cur = lab2rgb(cur)
-
-    imsave("starting_point/Beta-version/result_gif/img_" + str(i) + ".png", cur)
     cur = img_as_ubyte(cur)  # Convertir a formato de 8 bits (0-255)
     output_images.append(cur)
 
-output_gif_path = 'output/result.gif'
-imageio.mimsave(output_gif_path, output_images, duration=0.9)  # Guardar como archivo GIF
+output_gif_path = 'output/cespedd.gif'
+imageio.mimsave(output_gif_path, output_images, duration=0.5)  # Guardar como archivo GIF
 
 print("Archivo GIF guardado en:", output_gif_path)

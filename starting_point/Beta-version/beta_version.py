@@ -88,7 +88,7 @@ with tf.device('/GPU:0'):
     model.add(Conv2D(2, (3, 3), activation='tanh', padding='same'))
     model.add(UpSampling2D((2, 2)))
     optimizerAda = optimizers.Adagrad(lr=0.001)
-    model.compile(optimizer=optimizerAda, loss='mse',)
+    model.compile(optimizer=optimizerAda, loss='mse')
 
 
     #------------------------------------------DATA LOADER--------------------------------------------------------------

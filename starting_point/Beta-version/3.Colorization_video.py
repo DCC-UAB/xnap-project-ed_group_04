@@ -45,11 +45,14 @@ if len(physical_devices) > 0:
 
 # Get images
 X = []
-for filename in os.listdir('starting_point/Beta-version/Paisaje_train/'):
-    if filename.endswith(".jpg") or filename.endswith(".png"):
-        img = Image.open('starting_point/Beta-version/Paisaje_train/' + filename)
+for filename in os.listdir('starting_point/Beta-version/Paisatges/'):
+    if filename.endswith(".jpg") or filename.endswith(".png") or  filename.endswith(".jpeg"):
+        img = Image.open('starting_point/Beta-version/Paisatges/' + filename)
+        #print("IMATGE:--------------------", img)
         img = img.resize((256, 256))  # Asegurar que todas las imÃ¡genes tengan las mismas dimensiones
         X.append(img_to_array(img))
+
+
 X = np.array(X, dtype=float)
 
 
@@ -80,7 +83,7 @@ model.add(UpSampling2D((2, 2)))
 model.add(Conv2D(32, (3, 3), activation='relu', padding='same'))
 model.add(Conv2D(2, (3, 3), activation='tanh', padding='same'))
 model.add(UpSampling2D((2, 2)))
-model.compile(optimizer='adagrad', loss='mse', metrics=['accuracy'])
+model.compile(optimizer='adagrad', loss='mse')
 
 
 #------------------------------------------DATA LOADER--------------------------------------------------------------
@@ -107,7 +110,7 @@ def image_a_b_gen(batch_size):
 #-------------------------------------------------------------------------------------------------------------------------
 # Train model      
 tensorboard = TensorBoard(log_dir="output/first_run")
-history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=2, steps_per_epoch=2)
+history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=3, steps_per_epoch=2)
 
 # Save model
 model_json = model.to_json()
@@ -147,7 +150,7 @@ try:
 except EOFError:
     pass
 
-print("NUM FRAMES: ", len(frames))
+print("------------------NUM FRAME--------------------------------------------: ", len(frames))
 
 
 color_me = []

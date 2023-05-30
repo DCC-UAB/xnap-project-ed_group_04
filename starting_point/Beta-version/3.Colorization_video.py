@@ -167,14 +167,8 @@ color_me = color_me.reshape(color_me.shape + (1,))
 output = model.predict(color_me)
 output = output * 128
 
-# Output colorizations
-for i in range(len(output)):
-    cur = np.zeros((256, 256, 3))
-    cur[:, :, 0] = color_me[i][:, :, 0]
-    cur[:, :, 1:] = output[i]
-    cur = lab2rgb(cur)
    
-    imsave("starting_point/Beta-version/result_gif/img_" + str(i) + ".png", cur)
+    
 
 import imageio
 
@@ -185,6 +179,8 @@ for i in range(len(output)):
     cur[:, :, 0] = color_me[i][:, :, 0]
     cur[:, :, 1:] = output[i]
     cur = lab2rgb(cur)
+
+    imsave("starting_point/Beta-version/result_gif/img_" + str(i) + ".png", cur)
     cur = img_as_ubyte(cur)  # Convertir a formato de 8 bits (0-255)
     output_images.append(cur)
 

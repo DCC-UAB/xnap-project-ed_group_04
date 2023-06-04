@@ -162,7 +162,7 @@ with tf.device('/GPU:0'):
 
 
     plt.tight_layout()
-    plt.savefig('starting_point/Beta-version/curves/curva-prado.png')
+    plt.savefig('starting_point/Beta-version/curves/curva-rural.png')
     plt.close()
 
     # Test images
@@ -175,9 +175,9 @@ with tf.device('/GPU:0'):
     print(model.evaluate(Xtest, Ytest, batch_size=batch_size))
 
     color_me = []
-    for filename in os.listdir('starting_point/Beta-version/Paisajes2/'):
+    for filename in os.listdir('starting_point/Beta-version/Val_beta/'):
         if filename.endswith(".jpg") or filename.endswith(".jpeg"):
-            img = Image.open('starting_point/Beta-version/Paisajes2/' + filename)
+            img = Image.open('starting_point/Beta-version/Val_beta/' + filename)
             img = img.resize((256, 256))
             if img.mode == 'L':
                 img = np.expand_dims(img, axis=2)  # Agregar una dimensión de canal
@@ -206,4 +206,4 @@ for i in range(len(output)):
     cur[:, :, 1:] = output[i]
     cur = lab2rgb(cur)
    
-    imsave("starting_point/Beta-version/result-prados/img_" + str(i) + ".png", cur)
+    imsave("starting_point/Beta-version/result-rural/img_" + str(i) + ".png", cur)

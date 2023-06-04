@@ -160,7 +160,7 @@ Tot i això, una execució ens podia tardar perfectament 3 hores.
 
 En el cas dels vídeos, vam decidir fer servir les mateixes tècniques de xarxes neuronals, perquè com estem tractant el GIF com un conjunt d'imatges, aquestes estan connectades entre elles, per tant, una de les principals característiques de les CNN és que mantenen una coherència, continuïtat i relació entre les imatges que utilitza per entrenar i aprendre.
 
-Datasets
+### Datasets
 
 En relació als datasets emprats, hem arribat a la conclusió que és important tenir en compte diferents conjunts de dades, per tal de no caure en el fenòmen de l’overfitting i que el codi quedi més generalizable, ja que cada datasets té les seves peculiaritats i això fa que s’hagi de reajustar el codi en cada cas.
 Al final, per tal de veure si el model s’enriqueixia de noves característiques es va decidir utilitzar un nou dataset “maduixes” semblant al de plàtans, però en aquest cas, les execucions no van donar resultats satisfactoris, ja que no captava bé la intensitat del vermell. Aquest dataset està compost per un conjunt de imatges de maduixes amb diferents tonalitats de vermell i verd per la fulla.  
@@ -171,27 +171,27 @@ Malgrat això, la disponibilitat de memòria del tensor, és bastant limitada, d
 
 
 
-Imatges
+### Imatges
 
 Després de fer moltes proves i provar molts datasets, hem arribat a la conclusió que l'augment d'èpoques en el procés d'entrenament té un impacte bastant positiu en els resultats, ja que el model té l'oportunitat d'aprendre més característiques, patrons i generar prediccions més precises i acurades en la recreació del color.
 
 No obstant això, també hem observat que un excés d'èpoques porta al desaprenentatge. Això és degut al fet que el model es sobreajusta massa a detalls que perd l'enfocament general i, per tant, retorna la imatge en escala de grisos.
 
-Vídeo
+### Vídeo
 
 Després de veure el resultat final i comparar-lo amb la gràfica de la Loss de train i validation(Figura 27), hem pogut veure que al resultat que retorna hi ha bastants pics, la qual cosa vol dir que o hi ha outliers o que hi ha presència del fenomen overfitting. 
 
 Aquest fenomen es pot donar perquè el model estigui fent overfitting en aquelles etapes o perquè el conjunt de test sigui massa petit, la qual cosa no suposaria un problema del model.
 
 
-Millores
+### Millores
 
 Una possible millora en el context dels vídeos seria l'ús del model LSTM (Long Short-Term Memory), ja que aquest és un model recursiu i pot arribar a ser bastant òptim, donat que cada frame està connectat amb el frame anterior i posterior, així doncs aquest model pot capturar millor les relacions seqüencials i temporals presents en el vídeo i recrear el color de manera més gradual i real.
 
 Un altre millora que ens hagués agradat realitzar és utilitzar el model amb datasets notablement voluminós, ja que en algunes gràfiques de les funcions loss trobem pics que es podrien solucionar si el model disposés de més característiques per aprendre. Creiem que fent-ho, el model donaria resultats amb més qualitat.
 
 
-Problemes
+### Problemes
 
 Per últim, volem afegir que el principal problema que hem tingut durant tot el projecte, ha estat principalment la memòria, ja que si posàvem un batch size una mica més gran de l’habitual o posàvem més capes a la xarxa neuronal, el tensor es quedava sense memòria disponible i no podíem executar el codi.
 

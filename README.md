@@ -150,7 +150,7 @@ Aquest procés es repeteix per a tots els frames del GIF, fins a obtenir la seq�
 
 Es va fent el mateix per tots els frames, fins a tenir-los tots, un cop acabat aquest procés, reconstruim el GIF acolorit unint els frames.
 
-CONCLUSIONS
+## CONCLUSIONS
 
 L'objectiu principal d'aquest projecte és utilitzar les tècniques d'aprenentatge profund i capes especialitzades de xarxes neuronals convolucionals (CNN) per desenvolupar un sistema eficient i precís que sigui capaç d'afegir color automàticament a imatges en escala de grisos.
 

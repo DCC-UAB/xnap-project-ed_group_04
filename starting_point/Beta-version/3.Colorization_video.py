@@ -46,9 +46,9 @@ if len(physical_devices) > 0:
 
 # Get images
 X = []
-for filename in os.listdir('starting_point/Beta-version/Paisaje_train/'):
+for filename in os.listdir('starting_point/Beta-version/beach/train/'):
     if filename.endswith(".jpg") or filename.endswith(".png") or  filename.endswith(".jpeg"):
-        img = Image.open('starting_point/Beta-version/Paisaje_train/' + filename)
+        img = Image.open('starting_point/Beta-version/beach/train/' + filename)
         #print("IMATGE:--------------------", img)
         img = img.resize((256, 256))  # Asegurar que todas las imÃ¡genes tengan las mismas dimensiones
         X.append(img_to_array(img))
@@ -62,7 +62,10 @@ X = np.array(X, dtype=float)
 split = int(0.95 * len(X))
 Xtrain = X[:split]
 Xtrain = 1.0 / 255 * Xtrain
-
+Xtest = rgb2lab(1.0 / 255 * X[split:])[:, :, :, 0]
+Xtest = Xtest.reshape(Xtest.shape + (1,))
+Ytest = rgb2lab(1.0 / 255 * X[split:])[:, :, :, 1:]
+Ytest = Ytest / 128
 
 model = Sequential()
 model.add(InputLayer(input_shape=(256, 256, 1)))
@@ -100,7 +103,7 @@ datagen = ImageDataGenerator(
         vertical_flip=False)
 
 # Generate training data
-batch_size = 17
+batch_size = 15
 def image_a_b_gen(batch_size):
     for batch in datagen.flow(Xtrain, batch_size=batch_size):  #entrena per bloc
         lab_batch = rgb2lab(batch)
@@ -111,8 +114,9 @@ def image_a_b_gen(batch_size):
 #-------------------------------------------------------------------------------------------------------------------------
 # Train model      
 tensorboard = TensorBoard(log_dir="output/first_run")
-history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=2, steps_per_epoch=1)
-
+history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=200, steps_per_epoch=50, validation_data=(Xtest, Ytest))
+########################################################################
+print(model.evaluate(Xtest, Ytest, batch_size=batch_size))
 # Save model
 model_json = model.to_json()
 with open("model.json", "w") as json_file:
@@ -121,23 +125,32 @@ model.save_weights("model.h5")
 
 # Process history
 losses = history.history['loss']
+loss_valida = history.history['val_loss']
 
 # Plot learning curves
 plt.figure(figsize=(12, 6))
-plt.subplot(1, 2, 1)
 plt.plot(range(1, len(losses) + 1), losses)
-plt.xlabel('Iteration')
+plt.xlabel('Epochs')
 plt.ylabel('Loss')
 plt.title('Training Loss')
-plt.grid(True) 
-
-
-
+plt.legend()
+plt.grid(True)
 plt.tight_layout()
-plt.savefig('starting_point/Beta-version/result/learning_curves.png')
+plt.savefig('starting_point/Beta-version/result_curves/curva_training_gif_paisatge.png')
 plt.close()
 
-gif_path = "starting_point/Beta-version/prado.gif"
+plt.figure(figsize=(12, 6))
+plt.plot(range(1, len(loss_valida) + 1), loss_valida)
+plt.xlabel('Epochs')
+plt.ylabel('Loss')
+plt.title('Validation Loss')
+plt.legend()
+plt.grid(True)
+plt.tight_layout()
+plt.savefig('starting_point/Beta-version/result_curves/curva_validation_gif_paisatge.png')
+plt.close()
+
+gif_path = "starting_point/Beta-version/video-paisatge.gif"
 gif_image = Image.open(gif_path)
 
 #gif_image.show()
@@ -187,7 +200,7 @@ for i in range(len(output)):
     cur = img_as_ubyte(cur)  # Convertir a formato de 8 bits (0-255)
     output_images.append(cur)
 
-output_gif_path = 'output/cespedd.gif'
+output_gif_path = 'starting_point/Beta-version/result_gif/olas.gif'
 imageio.mimsave(output_gif_path, output_images, duration=0.5)  # Guardar como archivo GIF
 
 print("Archivo GIF guardado en:", output_gif_path)

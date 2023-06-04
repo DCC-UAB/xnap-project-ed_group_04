@@ -114,7 +114,7 @@ def image_a_b_gen(batch_size):
 #-------------------------------------------------------------------------------------------------------------------------
 # Train model      
 tensorboard = TensorBoard(log_dir="output/first_run")
-history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=200, steps_per_epoch=50, validation_data=(Xtest, Ytest))
+history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=150, steps_per_epoch=50, validation_data=(Xtest, Ytest))
 ########################################################################
 print(model.evaluate(Xtest, Ytest, batch_size=batch_size))
 # Save model
@@ -144,6 +144,18 @@ plt.plot(range(1, len(loss_valida) + 1), loss_valida)
 plt.xlabel('Epochs')
 plt.ylabel('Loss')
 plt.title('Validation Loss')
+plt.legend()
+plt.grid(True)
+plt.tight_layout()
+plt.savefig('starting_point/Beta-version/result_curves/curva_validation_gif_paisatge.png')
+plt.close()
+
+plt.figure(figsize=(12, 6))
+plt.plot(range(1, len(loss_valida) + 1), loss_valida,label='Test loss')
+plt.plot(range(1, len(loss_valida) + 1), losses,label='Training loss')
+plt.xlabel('Epochs')
+plt.ylabel('Loss')
+plt.title('Train and Validation Loss')
 plt.legend()
 plt.grid(True)
 plt.tight_layout()

@@ -99,7 +99,7 @@ A continuació, s’aplica el model entrenat a les imatges, utilitzant la funci�
 Finalment, s’aplica la conversió inversa de l’espai de color LAB a RGB, utilitzant la funció lab2rgb.
 
 
-DESENVOLUPAMENT 
+## DESENVOLUPAMENT 
 
 Un dels primers canvis que es van realitzar va ser passar el model a la GPU de la màquina virtual per tal de poder executar a major velocitat.
 

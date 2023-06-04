@@ -166,7 +166,7 @@ with tf.device('/GPU:0'):
 
 
     plt.tight_layout()
-    plt.savefig('starting_point/Beta-version/curves/curva-platan.png')
+    plt.savefig('starting_point/Beta-version/result-curves-imatges/curva-platan.png')
     plt.close()
 
     # Test images

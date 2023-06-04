@@ -46,20 +46,24 @@ if len(physical_devices) > 0:
 
 # Get images
 X = []
-for filename in os.listdir('starting_point/Beta-version/Paisaje_train/'):
-    if filename.endswith(".jpg") or filename.endswith(".png") or  filename.endswith(".jpeg"):
-        img = Image.open('starting_point/Beta-version/Paisaje_train/' + filename)
-        img = img.resize((256, 256))  # Asegurar que todas las imÃ¡genes tengan las mismas dimensiones
+for filename in os.listdir('starting_point/Beta-version/Banana/train/'):
+    if filename.endswith(".jpg") or filename.endswith(".png") or filename.endswith(".jpeg"):
+        img = Image.open('starting_point/Beta-version/Banana/train/' + filename)
+        img = img.resize((256, 256))  # Asegurar que todas las imágenes tengan las mismas dimensiones
         if img.mode == 'L':
             img = np.expand_dims(img, axis=2)  # Agregar una dimensión de canal
-            img = np.repeat(img, 3, axis=2)  
+            img = np.repeat(img, 3, axis=2)
+        else:
+            img = img.convert('RGB')  # Convertir la imagen a formato RGB si no lo es
         X.append(img_to_array(img))
+        
 print("LLISTA-------------------", len(X))
 
 # Verificar que todas las imágenes tengan la misma forma
 shapes = [img.shape for img in X]
 unique_shapes = set(shapes)
 print(unique_shapes)
+
 if len(unique_shapes) > 1:
     print("Las imágenes no tienen la misma forma después de redimensionar.")
 
@@ -162,7 +166,7 @@ with tf.device('/GPU:0'):
 
 
     plt.tight_layout()
-    plt.savefig('starting_point/Beta-version/curves/curva-rural.png')
+    plt.savefig('starting_point/Beta-version/curves/curva-platan.png')
     plt.close()
 
     # Test images
@@ -175,9 +179,9 @@ with tf.device('/GPU:0'):
     print(model.evaluate(Xtest, Ytest, batch_size=batch_size))
 
     color_me = []
-    for filename in os.listdir('starting_point/Beta-version/Val_beta/'):
-        if filename.endswith(".jpg") or filename.endswith(".jpeg"):
-            img = Image.open('starting_point/Beta-version/Val_beta/' + filename)
+    for filename in os.listdir('starting_point/Beta-version/Banana/test/'):
+        if filename.endswith(".jpg") or filename.endswith(".jpeg") or filename.endswith(".png"):
+            img = Image.open('starting_point/Beta-version/Banana/test/' + filename)
             img = img.resize((256, 256))
             if img.mode == 'L':
                 img = np.expand_dims(img, axis=2)  # Agregar una dimensión de canal
@@ -206,4 +210,4 @@ for i in range(len(output)):
     cur[:, :, 1:] = output[i]
     cur = lab2rgb(cur)
    
-    imsave("starting_point/Beta-version/result-rural/img_" + str(i) + ".png", cur)
+    imsave("starting_point/Beta-version/result_banana/img_" + str(i) + ".png", cur)

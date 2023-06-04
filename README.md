@@ -7,6 +7,8 @@ Amal El Hammoudi 1608672@uab.cat
 
 Xarxes Neuronals i Aprenentatge Profund -Grau de Data Engineering UAB, 2023
 
+Aquest repositori conté el conjunt de codis utilitzats per a la coloració automàtica d'imatges i vídeos en blanc i negre, així com els conjunts de dades utilitzats i resultats obtinguts en aquest procés.
+
 ## INTRODUCCIÓ
 
 La coloració d'imatges (image colorization en anglès) consisteix a donar color a fotografies en blanc i negre. Aquest procés pot semblar senzill, ja que per nosaltres, els humans, és relativament comú veure els colors reals que tenen els diferents elements, com el mar o la gespa, que apareixen en una imatge en blanc i negre.

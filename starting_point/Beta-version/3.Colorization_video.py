@@ -46,9 +46,9 @@ if len(physical_devices) > 0:
 
 # Get images
 X = []
-for filename in os.listdir('starting_point/Beta-version/Paisaje_train/'):
+for filename in os.listdir('starting_point/Beta-version/lagos/'):
     if filename.endswith(".jpg") or filename.endswith(".png") or  filename.endswith(".jpeg"):
-        img = Image.open('starting_point/Beta-version/Paisaje_train/' + filename)
+        img = Image.open('starting_point/Beta-version/lagos/' + filename)
         #print("IMATGE:--------------------", img)
         img = img.resize((256, 256))  # Asegurar que todas las imÃ¡genes tengan las mismas dimensiones
         X.append(img_to_array(img))
@@ -100,7 +100,7 @@ datagen = ImageDataGenerator(
         vertical_flip=False)
 
 # Generate training data
-batch_size = 17
+batch_size = 15
 def image_a_b_gen(batch_size):
     for batch in datagen.flow(Xtrain, batch_size=batch_size):  #entrena per bloc
         lab_batch = rgb2lab(batch)
@@ -111,7 +111,7 @@ def image_a_b_gen(batch_size):
 #-------------------------------------------------------------------------------------------------------------------------
 # Train model      
 tensorboard = TensorBoard(log_dir="output/first_run")
-history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=2, steps_per_epoch=1)
+history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=60, steps_per_epoch=50)
 
 # Save model
 model_json = model.to_json()

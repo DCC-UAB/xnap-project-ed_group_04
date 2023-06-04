@@ -46,9 +46,9 @@ if len(physical_devices) > 0:
 
 # Get images
 X = []
-for filename in os.listdir('starting_point/Beta-version/train-strawberry/'):
+for filename in os.listdir('starting_point/Beta-version/Train_beta/'):
     if filename.endswith(".jpg") or filename.endswith(".png") or  filename.endswith(".jpeg"):
-        img = Image.open('starting_point/Beta-version/train-strawberry/' + filename)
+        img = Image.open('starting_point/Beta-version/Train_beta/' + filename)
         img = img.resize((256, 256))  # Asegurar que todas las imÃ¡genes tengan las mismas dimensiones
         if img.mode == 'L':
             img = np.expand_dims(img, axis=2)  # Agregar una dimensión de canal
@@ -72,7 +72,10 @@ split = int(0.95 * len(X))
 Xtrain = X[:split]
 Xtrain = 1.0 / 255 * Xtrain
 
-
+Xtest = rgb2lab(1.0 / 255 * X[split:])[:, :, :, 0]
+Xtest = Xtest.reshape(Xtest.shape + (1,))
+Ytest = rgb2lab(1.0 / 255 * X[split:])[:, :, :, 1:]
+Ytest = Ytest / 128
 
 # Crear una sesión de TensorFlow y asignar la GPU como dispositivo de ejecución
 with tf.device('/GPU:0'):
@@ -120,7 +123,7 @@ with tf.device('/GPU:0'):
         # vertical_flip=True)#false
 
     # Generate training data
-    batch_size = 30 #ho he canviat
+    batch_size = 15 #ho he canviat
     def image_a_b_gen(batch_size):
         for batch in datagen.flow(Xtrain, batch_size=batch_size):  #entrena per bloc
             lab_batch = rgb2lab(batch)
@@ -132,7 +135,10 @@ with tf.device('/GPU:0'):
     #-------------------------------------------------------------------------------------------------------------------------
     # Train model      
     tensorboard = TensorBoard(log_dir="output/first_run")
-    history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=4, steps_per_epoch=1)
+    history = model.fit_generator(image_a_b_gen(batch_size), callbacks=[tensorboard], epochs=350, steps_per_epoch=50, validation_data=(Xtest, Ytest))
+
+    ########################################################################
+    print(model.evaluate(Xtest, Ytest, batch_size=batch_size))
 
     # Save model
     model_json = model.to_json()
@@ -142,31 +148,36 @@ with tf.device('/GPU:0'):
 
     # Process history
     losses = history.history['loss']
-
+    loss_valida = history.history['val_loss']
+    
     # Plot learning curves
     plt.figure(figsize=(12, 6))
-    plt.plot(range(1, len(losses) + 1), losses)
-    plt.xlabel('Iteration')
+    plt.plot(range(1, len(losses) + 1), losses, label = "Training Loss")
+    plt.plot(range(1, len(loss_valida) + 1), loss_valida, label = "Validation Loss")
+    plt.xlabel('Epochs')
     plt.ylabel('Loss')
-    plt.title('Training Loss')
+    plt.title('Training and Validation Loss')
+    plt.legend()
     plt.grid(True)
 
 
     plt.tight_layout()
-    plt.savefig('starting_point/Beta-version/result/learning_curves-strawberry.png')
+    plt.savefig('starting_point/Beta-version/curves/curva-rural.png')
     plt.close()
 
     # Test images
-    Xtest = rgb2lab(1.0 / 255 * X[split:])[:, :, :, 0]
-    Xtest = Xtest.reshape(Xtest.shape + (1,))
-    Ytest = rgb2lab(1.0 / 255 * X[split:])[:, :, :, 1:]
-    Ytest = Ytest / 128
+    
+    #Xtest = rgb2lab(1.0 / 255 * X[split:])[:, :, :, 0]
+    #Xtest = Xtest.reshape(Xtest.shape + (1,))
+    #Ytest = rgb2lab(1.0 / 255 * X[split:])[:, :, :, 1:]
+    #Ytest = Ytest / 128
+
     print(model.evaluate(Xtest, Ytest, batch_size=batch_size))
 
     color_me = []
-    for filename in os.listdir('starting_point/Beta-version/strawberry-test/'):
+    for filename in os.listdir('starting_point/Beta-version/Val_beta/'):
         if filename.endswith(".jpg") or filename.endswith(".jpeg"):
-            img = Image.open('starting_point/Beta-version/strawberry-test/' + filename)
+            img = Image.open('starting_point/Beta-version/Val_beta/' + filename)
             img = img.resize((256, 256))
             if img.mode == 'L':
                 img = np.expand_dims(img, axis=2)  # Agregar una dimensión de canal
@@ -195,4 +206,4 @@ for i in range(len(output)):
     cur[:, :, 1:] = output[i]
     cur = lab2rgb(cur)
    
-    imsave("starting_point/Beta-version/result_w/img_" + str(i) + ".png", cur)
+    imsave("starting_point/Beta-version/result-rural/img_" + str(i) + ".png", cur)

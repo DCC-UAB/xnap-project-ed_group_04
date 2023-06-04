@@ -46,9 +46,9 @@ if len(physical_devices) > 0:
 
 # Get images
 X = []
-for filename in os.listdir('starting_point/Beta-version/Train_beta/'):
+for filename in os.listdir('starting_point/Beta-version/Paisaje_train/'):
     if filename.endswith(".jpg") or filename.endswith(".png") or  filename.endswith(".jpeg"):
-        img = Image.open('starting_point/Beta-version/Train_beta/' + filename)
+        img = Image.open('starting_point/Beta-version/Paisaje_train/' + filename)
         img = img.resize((256, 256))  # Asegurar que todas las imÃ¡genes tengan las mismas dimensiones
         if img.mode == 'L':
             img = np.expand_dims(img, axis=2)  # Agregar una dimensión de canal

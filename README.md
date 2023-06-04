@@ -7,6 +7,8 @@ Amal El Hammoudi 1608672@uab.cat
 
 Xarxes Neuronals i Aprenentatge Profund -Grau de Data Engineering UAB, 2023
 
+Aquest repositori conté el conjunt de codis utilitzats per a la coloració automàtica d'imatges i vídeos en blanc i negre, així com els conjunts de dades utilitzats i resultats obtinguts en aquest procés.
+
 ## INTRODUCCIÓ
 
 La coloració d'imatges (image colorization en anglès) consisteix a donar color a fotografies en blanc i negre. Aquest procés pot semblar senzill, ja que per nosaltres, els humans, és relativament comú veure els colors reals que tenen els diferents elements, com el mar o la gespa, que apareixen en una imatge en blanc i negre.
@@ -99,35 +101,6 @@ A continuació, s’aplica el model entrenat a les imatges, utilitzant la funci�
 Finalment, s’aplica la conversió inversa de l’espai de color LAB a RGB, utilitzant la funció lab2rgb.
 
 
-DESENVOLUPAMENT 
-
-Un dels primers canvis que es van realitzar va ser passar el model a la GPU de la màquina virtual per tal de poder executar a major velocitat.
-
-Un segon canvi va ser aplicar un resize a totes les imatges per a que totes tinguessin una mida de (256,256) i així, no hi hagués cap conflicte a l’hora d’operar amb aquestes.
-
-També es mira que totes les fotografies tinguin tres dimensions, en el cas de no ser així, és a dir, que siguin en blanc i negre, s’afegeixen dues dimensions més.
-
-Seguidament, a la part del codi del Data Augmentation, per tal d’afegir variabilitat i més característiques a les imatges, hi havia diverses opcions de canvis que s’apliquen a algunes imatges, dues d’aquestes opcions eren flips, aquests es van descartar ja que no interessa que s’alteri la naturalesa de la composició de les imatges.
-
-Les modificacions d’imatges que s’han mantingut són el shear_range que aplica una deformació a la imatge amb un angle màxim de 0.2 radians, el zoom_range que apropa o allunya la imatge com a màxim en un 0.2 i finalment, el rotation_range que realitza una rotació aleatoria com a màxim de 20 graus. Aquesta última modificació afegeix variabilitat però no arriba a distorsionar la naturalesa de la composició de la imatge tant com els flips.
-
-El Data Augmentations és important en aquest projecte degut a que els datasets que s’usen no són massa grans, per tant, afegir característiques modificant les imatges, fa que s’enriqueixi l’entrenament del model.
-
-Una altra modificació del codi ha sigut aplicar més capes convolucionals al model. Aquest canvi es va aplicar per obtenir una major capacitat d’aprenentatge de característiques ja que cada capa extra pot aprendre característiques més complexes i abstractes que les capes anteriors.
-
-Al afegir més capes convolucionals també augmentem la no linealitat de la xarxa, el que permet aprendre relacions i patrons no lineals en les dades. Al augmentar la profunditat de la xarxa, s’augmenta la capacitat per processar relacions no lineals més complexes entre les dades.
-
-No sempre es recomenable aquest canvi ja que si s’afegeixen moltes, la xarxa es pot tendir a l’overfitting i a més pot causar problemes de memòria, per això, per aquest model només s’han afegit tres capes convolucionals extres.
-
-Després es van canviar l’optimitzador i el learning rate. Experimentalment, el millor optimitzador ha sigut Adagrad amb un learning rate de 0.001. Adagrad és un bon optimitzador ja que quan els gradients varien de manera considerable entre dimensions, Adagrad treballa bé. 
-
-Després es van canviar el batch_size, les epochs i els steps_per_epoch. El batch_size és el número d’elements del train que s’utilitzen en una iteració abans d’actualitzar els pesos del model. Per tal d’utilitzar un batch_size optim, s’ha d’observar el numero d’elements que hi ha al train, com els datasets que s’utilitzen en aquest projecte són petits, el batch size adient es troba al voltant de 15.
-
-Per les epochs, que és la quantitat de cops que el model passa per tot el train, també s’ha tingut en compte la mida del train, com els trains acostumen a no ser massa grans, 350 epochs són suficients per a que el model eviti l’overfitting.
-Els steps per epoch són el número de pasos que es faràn en cada època, entent passos com la realització d’un càlcul per actualitzar els pesos del model. En aquest cas els steps que han mostrat millors resultats han estat al voltant dels 50.
-
-Finalment, per tal de comprovar si el model fa overfitting de manera gràfica, s’ha guardat el fit_generator del model en la variable ‘history’ afegint per paràmetre el validation_data que és la part del conjunt X que s’usa com a test. Del history extraiem la ‘loss’, que representa la loss del train, i la ‘val_loss’ que representa la loss del conjunt de validació. Per poder visualitzar aquests resultats i comprovar si es fa overfitting, es fan plots d’aquests resultats i com VisualStudio no te interfície gràfica, es guarda el resultat dels plots com a arxiu png.
-
 ## GIF VERSION
 
 En el marc d'aquest projecte, s'ha decidit ampliar-ne l'abast per incloure la coloració de vídeos en format GIF en blanc i negre i no només imatges.
@@ -149,56 +122,3 @@ Acabat el procés de predicció per cada frame individual, es reconstrueixen les
 Aquest procés es repeteix per a tots els frames del GIF, fins a obtenir la seqüència completa de frames en color. Finalment, es reconstrueix el GIF acolorit unint tots els frames processats.
 
 Es va fent el mateix per tots els frames, fins a tenir-los tots, un cop acabat aquest procés, reconstruim el GIF acolorit unint els frames.
-
-## CONCLUSIONS
-
-L'objectiu principal d'aquest projecte és utilitzar les tècniques d'aprenentatge profund i capes especialitzades de xarxes neuronals convolucionals (CNN) per desenvolupar un sistema eficient i precís que sigui capaç d'afegir color automàticament a imatges en escala de grisos.
-
-Després de realitzar un extens seguit de proves en la coloració d'imatges i vídeos, hem arribat a la conclusió que les capes convolucionals són una eina essencial per transformar i colorejar les imatges amb una gran precisió i qualitat. Fent ús de les capes convolucionals (CNN), hem aconseguit capturar i aprendre característiques, detalls, textures, a més d'estructures, colors, voreres, patrons i relacions complexes entre els píxels de les imatges, mitjançant el procés d'entrenament amb un conjunt de datasets. 
-Una de les raons per les quals hem usat les capes convolucionals ha estat per la seva capacitat per processar les imatges de manera eficient, la qual cosa fa que l'execució no tardi tant en comparació a possibles altres models.
-Tot i això, una execució ens podia tardar perfectament 3 hores.
-
-En el cas dels vídeos, vam decidir fer servir les mateixes tècniques de xarxes neuronals, perquè com estem tractant el GIF com un conjunt d'imatges, aquestes estan connectades entre elles, per tant, una de les principals característiques de les CNN és que mantenen una coherència, continuïtat i relació entre les imatges que utilitza per entrenar i aprendre.
-
-Datasets
-
-En relació als datasets emprats, hem arribat a la conclusió que és important tenir en compte diferents conjunts de dades, per tal de no caure en el fenòmen de l’overfitting i que el codi quedi més generalizable, ja que cada datasets té les seves peculiaritats i això fa que s’hagi de reajustar el codi en cada cas.
-Al final, per tal de veure si el model s’enriqueixia de noves característiques es va decidir utilitzar un nou dataset “maduixes” semblant al de plàtans, però en aquest cas, les execucions no van donar resultats satisfactoris, ja que no captava bé la intensitat del vermell. Aquest dataset està compost per un conjunt de imatges de maduixes amb diferents tonalitats de vermell i verd per la fulla.  
-
-Com que els datasets comentats abans en l’apartat de datasets, no tenen un gran volum de dades, és va buscar un de balenes amb 252 imatges de test i 1104 imatges de train. Utilizar datasets voluminosos ajuda al rendiment del model i millora la capacitat de reconèixer patrons per realitzar prediccions més precises. 
-Malgrat això, la disponibilitat de memòria del tensor, és bastant limitada, de manera, que no soporta una quantitat de dades tan gran, fent així que quedi revocat.
-
-
-
-
-Imatges
-
-Després de fer moltes proves i provar molts datasets, hem arribat a la conclusió que l'augment d'èpoques en el procés d'entrenament té un impacte bastant positiu en els resultats, ja que el model té l'oportunitat d'aprendre més característiques, patrons i generar prediccions més precises i acurades en la recreació del color.
-
-No obstant això, també hem observat que un excés d'èpoques porta al desaprenentatge. Això és degut al fet que el model es sobreajusta massa a detalls que perd l'enfocament general i, per tant, retorna la imatge en escala de grisos.
-
-Vídeo
-
-Després de veure el resultat final i comparar-lo amb la gràfica de la Loss de train i validation(Figura 27), hem pogut veure que al resultat que retorna hi ha bastants pics, la qual cosa vol dir que o hi ha outliers o que hi ha presència del fenomen overfitting. 
-
-Aquest fenomen es pot donar perquè el model estigui fent overfitting en aquelles etapes o perquè el conjunt de test sigui massa petit, la qual cosa no suposaria un problema del model.
-
-
-Millores
-
-Una possible millora en el context dels vídeos seria l'ús del model LSTM (Long Short-Term Memory), ja que aquest és un model recursiu i pot arribar a ser bastant òptim, donat que cada frame està connectat amb el frame anterior i posterior, així doncs aquest model pot capturar millor les relacions seqüencials i temporals presents en el vídeo i recrear el color de manera més gradual i real.
-
-Un altre millora que ens hagués agradat realitzar és utilitzar el model amb datasets notablement voluminós, ja que en algunes gràfiques de les funcions loss trobem pics que es podrien solucionar si el model disposés de més característiques per aprendre. Creiem que fent-ho, el model donaria resultats amb més qualitat.
-
-
-Problemes
-
-Per últim, volem afegir que el principal problema que hem tingut durant tot el projecte, ha estat principalment la memòria, ja que si posàvem un batch size una mica més gran de l’habitual o posàvem més capes a la xarxa neuronal, el tensor es quedava sense memòria disponible i no podíem executar el codi.
-
-
-
-
-
-
-
-

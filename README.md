@@ -99,35 +99,6 @@ A continuació, s’aplica el model entrenat a les imatges, utilitzant la funci�
 Finalment, s’aplica la conversió inversa de l’espai de color LAB a RGB, utilitzant la funció lab2rgb.
 
 
-## DESENVOLUPAMENT 
-
-Un dels primers canvis que es van realitzar va ser passar el model a la GPU de la màquina virtual per tal de poder executar a major velocitat.
-
-Un segon canvi va ser aplicar un resize a totes les imatges per a que totes tinguessin una mida de (256,256) i així, no hi hagués cap conflicte a l’hora d’operar amb aquestes.
-
-També es mira que totes les fotografies tinguin tres dimensions, en el cas de no ser així, és a dir, que siguin en blanc i negre, s’afegeixen dues dimensions més.
-
-Seguidament, a la part del codi del Data Augmentation, per tal d’afegir variabilitat i més característiques a les imatges, hi havia diverses opcions de canvis que s’apliquen a algunes imatges, dues d’aquestes opcions eren flips, aquests es van descartar ja que no interessa que s’alteri la naturalesa de la composició de les imatges.
-
-Les modificacions d’imatges que s’han mantingut són el shear_range que aplica una deformació a la imatge amb un angle màxim de 0.2 radians, el zoom_range que apropa o allunya la imatge com a màxim en un 0.2 i finalment, el rotation_range que realitza una rotació aleatoria com a màxim de 20 graus. Aquesta última modificació afegeix variabilitat però no arriba a distorsionar la naturalesa de la composició de la imatge tant com els flips.
-
-El Data Augmentations és important en aquest projecte degut a que els datasets que s’usen no són massa grans, per tant, afegir característiques modificant les imatges, fa que s’enriqueixi l’entrenament del model.
-
-Una altra modificació del codi ha sigut aplicar més capes convolucionals al model. Aquest canvi es va aplicar per obtenir una major capacitat d’aprenentatge de característiques ja que cada capa extra pot aprendre característiques més complexes i abstractes que les capes anteriors.
-
-Al afegir més capes convolucionals també augmentem la no linealitat de la xarxa, el que permet aprendre relacions i patrons no lineals en les dades. Al augmentar la profunditat de la xarxa, s’augmenta la capacitat per processar relacions no lineals més complexes entre les dades.
-
-No sempre es recomenable aquest canvi ja que si s’afegeixen moltes, la xarxa es pot tendir a l’overfitting i a més pot causar problemes de memòria, per això, per aquest model només s’han afegit tres capes convolucionals extres.
-
-Després es van canviar l’optimitzador i el learning rate. Experimentalment, el millor optimitzador ha sigut Adagrad amb un learning rate de 0.001. Adagrad és un bon optimitzador ja que quan els gradients varien de manera considerable entre dimensions, Adagrad treballa bé. 
-
-Després es van canviar el batch_size, les epochs i els steps_per_epoch. El batch_size és el número d’elements del train que s’utilitzen en una iteració abans d’actualitzar els pesos del model. Per tal d’utilitzar un batch_size optim, s’ha d’observar el numero d’elements que hi ha al train, com els datasets que s’utilitzen en aquest projecte són petits, el batch size adient es troba al voltant de 15.
-
-Per les epochs, que és la quantitat de cops que el model passa per tot el train, també s’ha tingut en compte la mida del train, com els trains acostumen a no ser massa grans, 350 epochs són suficients per a que el model eviti l’overfitting.
-Els steps per epoch són el número de pasos que es faràn en cada època, entent passos com la realització d’un càlcul per actualitzar els pesos del model. En aquest cas els steps que han mostrat millors resultats han estat al voltant dels 50.
-
-Finalment, per tal de comprovar si el model fa overfitting de manera gràfica, s’ha guardat el fit_generator del model en la variable ‘history’ afegint per paràmetre el validation_data que és la part del conjunt X que s’usa com a test. Del history extraiem la ‘loss’, que representa la loss del train, i la ‘val_loss’ que representa la loss del conjunt de validació. Per poder visualitzar aquests resultats i comprovar si es fa overfitting, es fan plots d’aquests resultats i com VisualStudio no te interfície gràfica, es guarda el resultat dels plots com a arxiu png.
-
 ## GIF VERSION
 
 En el marc d'aquest projecte, s'ha decidit ampliar-ne l'abast per incloure la coloració de vídeos en format GIF en blanc i negre i no només imatges.
